@@ -6,66 +6,12 @@ from app import crud, schemas
 from app.config import settings
 from contextlib import asynccontextmanager
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup: cria as tabelas e faz seed
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    
-    # Chama a função de seed (SINCRONA - precisa ser adaptada)
-    # Para não complicar, vamos criar as tabelas e fazer seed de forma síncrona
-    seed_database()
-    
-    yield
-    # Shutdown: fecha conexões
-    await engine.dispose()
-
-
-app = FastAPI(
-    title="Artelli Artesanato API",
-    description="API completa para e-commerce de artesanato personalizado",
-    version="1.0.0",
-    lifespan=lifespan,
-)
-
-# Configuração CORS - CORRIGIDA
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "https://artelli-frontend.onrender.com",  # ← Frontend no Render (CRUCIAL!)
-        "http://localhost:5173",                  # Desenvolvimento local
-        "http://localhost:3000",                  # Alternativa local
-        "http://frontend",                        # Docker local
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Incluir as rotas
-app.include_router(auth.router)
-app.include_router(users.router)
-app.include_router(products.router)
-
-# Rotas públicas
-@app.get("/")
-def root():
-    return {"status": "ok", "message": "Artelli Artesanato API is running 🌿"}
-
-@app.get("/api/health")
-def health():
-    return {"status": "healthy"}
-
-@app.get("/api/config/whatsapp")
-def whatsapp_config():
-    return {"number": settings.WHATSAPP_NUMBER}
-
-# Função de seed (NÃO usa @app.on_event)
+# Função de seed (síncrona)
 def seed_database():
     """Seed initial data if DB is empty."""
     db = SessionLocal()
     try:
-        
+        # Admin user
         if not crud.get_user_by_username(db, "admin"):
             admin = schemas.UserCreate(
                 email="admin@artelli.com",
@@ -148,12 +94,11 @@ def seed_database():
             },
             {
                 "name": "Terrario em Vidro Grande",
-                "slug": "terrario-vigro-grande",
+                "slug": "terrario-vidro-grande",
                 "short_description": "Terrário em vidro grande para plantas, autosustentavel e decorativo.",
                 "description": "Confeccionado em vidro, este terrário traz um toque moderno e elegante para qualquer ambiente. Ideal para plantas suculentas e cactos. Autosustentável, requer pouca manutenção e é perfeito para decorar sua casa ou escritório.",
                 "price": 130.00,
                 "original_price": 180.00,
-                "information": "NÃO FAZEMOS ENVIOS DE TERRÁRIOS. SOMENTE RETIRADA LOCAL EM SÃO PAULO - SP.",
                 "is_featured": False,
                 "is_customizable": True,
                 "production_days": 10,
@@ -162,12 +107,11 @@ def seed_database():
             },
             {
                 "name": "Terrario em Vidro Médio",
-                "slug": "terrario-vigro-medio",
+                "slug": "terrario-vidro-medio",
                 "short_description": "Terrário em vidro médio para plantas, autosustentavel e decorativo.",
                 "description": "Confeccionado em vidro, este terrário traz um toque moderno e elegante para qualquer ambiente. Ideal para plantas suculentas e cactos. Autosustentável, requer pouca manutenção e é perfeito para decorar sua casa ou escritório.",
                 "price": 68.00,
                 "original_price": 89.00,
-                "information": "NÃO FAZEMOS ENVIOS DE TERRÁRIOS. SOMENTE RETIRADA LOCAL EM SÃO PAULO - SP.",
                 "is_featured": False,
                 "is_customizable": True,
                 "production_days": 10,
@@ -176,12 +120,11 @@ def seed_database():
             },
             {
                 "name": "Terrario em Vidro Pequeno",
-                "slug": "terrario-vigro-pequeno",
+                "slug": "terrario-vidro-pequeno",
                 "short_description": "Terrário em vidro pequeno para plantas, autosustentavel e decorativo.",
                 "description": "Confeccionado em vidro, este terrário traz um toque moderno e elegante para qualquer ambiente. Ideal para plantas suculentas e cactos. Autosustentável, requer pouca manutenção e é perfeito para decorar sua casa ou escritório.",
                 "price": 12.00,
                 "original_price": 20.00,
-                "information": "NÃO FAZEMOS ENVIOS DE TERRÁRIOS. SOMENTE RETIRADA LOCAL EM SÃO PAULO - SP.",
                 "is_featured": False,
                 "is_customizable": True,
                 "production_days": 10,
@@ -200,3 +143,57 @@ def seed_database():
         print(f"❌ Error seeding database: {e}")
     finally:
         db.close()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: cria as tabelas (OPERAÇÃO SÍNCRONA)
+    Base.metadata.create_all(bind=engine)
+    
+    # Chama o seed
+    seed_database()
+    
+    yield
+    # Shutdown: fecha conexões (OPERAÇÃO SÍNCRONA)
+    engine.dispose()
+
+
+# Cria o app
+app = FastAPI(
+    title="Artelli Artesanato API",
+    description="API completa para e-commerce de artesanato personalizado",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+# Configuração CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://artelli-frontend.onrender.com",
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://frontend",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Incluir as rotas
+app.include_router(auth.router)
+app.include_router(users.router)
+app.include_router(products.router)
+
+# Rotas públicas
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "Artelli Artesanato API is running 🌿"}
+
+@app.get("/api/health")
+def health():
+    return {"status": "healthy"}
+
+@app.get("/api/config/whatsapp")
+def whatsapp_config():
+    return {"number": settings.WHATSAPP_NUMBER}

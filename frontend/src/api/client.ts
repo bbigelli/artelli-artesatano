@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://backend:8000/api';
 
 // ⚠️ IMPORTANTE: BASE_URL já deve incluir /api
 // No Render, VITE_API_URL deve ser: https://artelli-backend.onrender.com/api
 const api = axios.create({
-  baseURL: BASE_URL,  // ← Isso vai resolver a duplicação
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
