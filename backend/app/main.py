@@ -16,7 +16,7 @@ def seed_database():
             admin = schemas.UserCreate(
                 email="admin@artelli.com",
                 username="admin",
-                name="Administrador Artelli",
+                full_name="Administrador Artelli",
                 password="admin123",
             )
             user = crud.create_user(db, admin)
@@ -76,7 +76,7 @@ def seed_database():
                 "is_featured": True,
                 "is_customizable": True,
                 "production_days": 5,
-                "image_url": "https://artelli-frontend.onrender.com/mini_plaquinhas.png",
+                "image_url": "https://artelli-frontend.onrender.com/plaquinhas_pequenas.png",
                 "category_id": cat_decoracao.id if cat_decoracao else None,
             },
             {
@@ -89,7 +89,7 @@ def seed_database():
                 "is_featured": False,
                 "is_customizable": True,
                 "production_days": 8,
-                "image_url": "https://artelli-frontend.onrender.com/placas_madeira.png",
+                "image_url": "https://artelli-frontend.onrender.com/plaquinhas_grandes.png",
                 "category_id": cat_decoracao.id if cat_decoracao else None,
             },
             {
