@@ -12,4 +12,8 @@ export default defineConfig({
       },
     },
   },
+  // Importante para o TypeScript reconhecer as variáveis de ambiente
+  define: {
+    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL),
+  },
 })
