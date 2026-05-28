@@ -2,7 +2,7 @@ export interface User {
   id: number;
   email: string;
   username: string;
-  full_name: string | null;
+  name: string;
   phone: string | null;
   address: string | null;
   city: string | null;
@@ -16,7 +16,7 @@ export interface User {
 export interface UserCreate {
   email: string;
   username: string;
-  full_name?: string;
+  name: string;
   phone?: string;
   address?: string;
   city?: string;
@@ -26,7 +26,7 @@ export interface UserCreate {
 }
 
 export interface UserUpdate {
-  full_name?: string;
+  name?: string;
   phone?: string;
   address?: string;
   city?: string;
