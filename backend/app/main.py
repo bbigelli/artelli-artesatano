@@ -4,6 +4,20 @@ from app.database import Base, engine, SessionLocal
 from app.routers import auth, users, products
 from app import crud, schemas
 from app.config import settings
+from contextlib import asynccontextmanager
+from .database import engine
+from .models import Base
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: cria as tabelas
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    # Shutdown: fecha conexões
+    await engine.dispose()
+
+app = FastAPI(lifespan=lifespan)
 
 # Create tables on startup
 Base.metadata.create_all(bind=engine)
