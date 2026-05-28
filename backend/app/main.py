@@ -76,7 +76,7 @@ def seed_database():
                 "is_featured": True,
                 "is_customizable": True,
                 "production_days": 5,
-                "image_url": "https://artelli-frontend.onrender.com/plaquinhas_pequenas.png",
+                "image_url": "https://artelli-frontend.onrender.com/mini_plaquinhas.png",
                 "category_id": cat_decoracao.id if cat_decoracao else None,
             },
             {
