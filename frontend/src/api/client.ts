@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// Em desenvolvimento: usa o proxy do Vite (relativo)
-// Em produção: usa a URL do backend no Render
-const BASE_URL = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_URL || 'https://artelli-backend.onrender.com');
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+// ⚠️ IMPORTANTE: BASE_URL já deve incluir /api
+// No Render, VITE_API_URL deve ser: https://artelli-backend.onrender.com/api
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: BASE_URL,  // ← Isso vai resolver a duplicação
   headers: {
     'Content-Type': 'application/json',
   },
