@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+// Pega a URL do backend das variáveis de ambiente
+// No desenvolvimento: http://localhost:8000
+// Em produção: https://artelli-backend.onrender.com
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: BASE_URL,
 });
 
 api.interceptors.request.use((config) => {
