@@ -55,7 +55,7 @@ export default function Header() {
               {dropdownOpen && (
                 <div className="header__dropdown-menu">
                   <div className="header__dropdown-user">
-                    <span>{user?.full_name || user?.username}</span>
+                    <span>{user?.name || user?.username}</span>
                     <small>{user?.email}</small>
                   </div>
                   <hr className="divider" />

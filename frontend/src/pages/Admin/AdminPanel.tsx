@@ -246,7 +246,7 @@ export default function AdminPanel() {
                 <tbody>
                   {users.map((u) => (
                     <tr key={u.id}>
-                      <td><strong>{u.username}</strong><br /><small>{u.full_name}</small></td>
+                      <td><strong>{u.username}</strong><br /><small>{u.name}</small></td>
                       <td>{u.email}</td>
                       <td>
                         <button

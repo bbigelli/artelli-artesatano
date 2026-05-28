@@ -87,7 +87,7 @@ export function Login() {
 
 export function Register() {
   const [form, setForm] = useState({
-    email: '', username: '', full_name: '', phone: '',
+    email: '', username: '', name: '', phone: '',
     address: '', city: '', state: '', zip_code: '', password: '', confirm: '',
   });
   const [showPw, setShowPw] = useState(false);
@@ -110,7 +110,7 @@ export function Register() {
       await register({
         email: form.email,
         username: form.username,
-        full_name: form.full_name || undefined,
+        name: form.name,
         phone: form.phone || undefined,
         address: form.address || undefined,
         city: form.city || undefined,
@@ -148,7 +148,7 @@ export function Register() {
             </div>
             <div className="form-group">
               <label className="form-label">Nome completo</label>
-              <input className="form-input" value={form.full_name} onChange={(e) => setField('full_name', e.target.value)} placeholder="Maria Silva" />
+              <input className="form-input" value={form.name} onChange={(e) => setField('name', e.target.value)} placeholder="Maria Silva" />
             </div>
             <div className="form-group">
               <label className="form-label">Telefone / WhatsApp</label>
