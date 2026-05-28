@@ -11,17 +11,19 @@ def seed_database():
     """Seed initial data if DB is empty."""
     db = SessionLocal()
     try:
-        # Admin user
-        if not crud.get_user_by_username(db, "admin"):
+        # Admin user - verificar por email
+        if not crud.get_user_by_email(db, "admin@artelli.com"):
             admin = schemas.UserCreate(
                 email="admin@artelli.com",
-                username="admin",
-                full_name="Administrador Artelli",
+                name="Administrador Artelli",
                 password="admin123",
             )
             user = crud.create_user(db, admin)
             user.is_admin = True
             db.commit()
+            print("✅ Admin user created")
+        else:
+            print("ℹ️ Admin user already exists")
 
         # Categories
         categories = [
