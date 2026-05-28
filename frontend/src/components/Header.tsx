@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, Menu, X, LogOut, Settings, Leaf } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, LogOut, Settings} from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import './Header.css';
