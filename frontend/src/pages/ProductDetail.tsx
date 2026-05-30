@@ -31,7 +31,7 @@ export default function ProductDetail() {
   );
 
   const images = [product.image_url, product.image_url_2, product.image_url_3].filter(Boolean) as string[];
-  const activeImage = images[activeImg] || 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=700';
+  const activeImage = images[activeImg] || '/Logo.png';
 
   function handleAddToCart() {
     addItem(
@@ -69,7 +69,7 @@ export default function ProductDetail() {
           {/* Gallery */}
           <div className="product-detail__gallery">
             <div className="product-detail__main-img">
-              <img src={activeImage} alt={product.name} />
+              <img src={activeImage} alt={product.name} onError={(e) => { (e.target as HTMLImageElement).src = '/Logo.png'; }} />
               {product.is_featured && (
                 <span className="product-card__featured">
                   <Sparkles size={11} /> Destaque

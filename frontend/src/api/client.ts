@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://backend:8000/api';
+// FIX: VITE_API_URL é baked no build pelo Vite (via ARG no Dockerfile).
+// Em dev usa o proxy do vite.config.ts. Em prod usa a URL do Render.
+const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
-// ⚠️ IMPORTANTE: BASE_URL já deve incluir /api
-// No Render, VITE_API_URL deve ser: https://artelli-backend.onrender.com/api
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {

@@ -3,9 +3,8 @@
   grid-template-columns: 220px 1fr;
   min-height: calc(100vh - 68px);
 }
-@media (max-width: 768px) { .admin { grid-template-columns: 1fr; } }
 
-/* Sidebar */
+/* ── Sidebar ── */
 .admin-sidebar {
   background: var(--green-900);
   padding: 24px 16px;
@@ -17,7 +16,6 @@
   height: calc(100vh - 68px);
   overflow-y: auto;
 }
-@media (max-width: 768px) { .admin-sidebar { display: none; } }
 
 .admin-sidebar__brand {
   padding: 12px;
@@ -33,7 +31,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
+  padding: 12px 14px;
   border-radius: var(--radius-sm);
   font-size: 0.88rem;
   font-weight: 400;
@@ -45,16 +43,39 @@
   width: 100%;
   text-align: left;
   transition: all var(--transition);
+  min-height: 44px;
 }
-.admin-sidebar__link:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+.admin-sidebar__link:hover  { background: rgba(255,255,255,0.08); color: var(--white); }
 .admin-sidebar__link.active { background: var(--green-700); color: var(--white); }
 
-/* Main */
-.admin-main { padding: 40px; background: var(--cream-100); }
-@media (max-width: 768px) { .admin-main { padding: 24px 16px; } }
+/* Mobile: sidebar becomes top bar */
+@media (max-width: 768px) {
+  .admin { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .admin-sidebar {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 12px;
+    gap: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-sidebar__brand { display: none; }
+  .admin-sidebar__nav { flex-direction: row; gap: 4px; }
+  .admin-sidebar__link { white-space: nowrap; padding: 8px 14px; }
+}
+
+/* ── Main ── */
+.admin-main {
+  padding: 40px;
+  background: var(--cream-100);
+  min-width: 0;
+}
+@media (max-width: 768px) { .admin-main { padding: 20px 16px; } }
 
 .admin-section { display: flex; flex-direction: column; gap: 24px; }
-.admin-section h2 { font-size: 1.8rem; color: var(--green-900); }
+.admin-section h2 { font-size: clamp(1.4rem, 4vw, 1.8rem); color: var(--green-900); }
 .admin-section__header {
   display: flex;
   align-items: center;
@@ -63,27 +84,36 @@
   flex-wrap: wrap;
 }
 
-/* Stats */
+/* ── Stats ── */
 .admin-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 16px;
+}
+@media (max-width: 480px) {
+  .admin-stats { grid-template-columns: repeat(2, 1fr); }
 }
 .admin-stat {
   background: var(--white);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 4px;
   box-shadow: var(--shadow-sm);
 }
-.admin-stat__num { font-family: var(--font-display); font-size: 2.4rem; color: var(--green-800); }
-.admin-stat__label { font-size: 0.82rem; color: var(--text-500); }
+.admin-stat__num   { font-family: var(--font-display); font-size: 2rem; color: var(--green-800); }
+.admin-stat__label { font-size: 0.8rem; color: var(--text-500); }
 
-/* Table */
-.admin-table-wrap { background: var(--white); border-radius: var(--radius-lg); overflow: auto; box-shadow: var(--shadow-sm); }
-.admin-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+/* ── Table ── */
+.admin-table-wrap {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  overflow: auto;
+  box-shadow: var(--shadow-sm);
+  -webkit-overflow-scrolling: touch;
+}
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 600px; }
 .admin-table th {
   text-align: left;
   padding: 14px 16px;
@@ -105,13 +135,9 @@
 .admin-table tr:last-child td { border-bottom: none; }
 .admin-table tr:hover td { background: var(--cream-100); }
 .admin-table td strong { display: block; color: var(--text-900); font-weight: 500; }
-.admin-table td small { color: var(--text-400); font-size: 0.78rem; }
+.admin-table td small  { color: var(--text-400); font-size: 0.78rem; }
 
-.admin-table__product {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.admin-table__product { display: flex; align-items: center; gap: 12px; }
 .admin-table__product img {
   width: 48px; height: 48px;
   border-radius: var(--radius-sm);
@@ -122,19 +148,16 @@
 .admin-table__actions { display: flex; gap: 6px; }
 
 .admin-icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
   border-radius: var(--radius-sm);
   color: var(--text-500);
   background: var(--cream-100);
-  border: none;
-  cursor: pointer;
+  border: none; cursor: pointer;
   transition: all var(--transition);
 }
-.admin-icon-btn:hover { background: var(--cream-300); color: var(--text-900); }
-.admin-icon-btn.danger:hover { background: #FDF2F2; color: var(--red); }
+.admin-icon-btn:hover         { background: var(--cream-300); color: var(--text-900); }
+.admin-icon-btn.danger:hover  { background: #FDF2F2; color: var(--red); }
 
 .admin-badge {
   display: inline-block;
@@ -146,17 +169,14 @@
 .admin-badge--green { background: var(--green-200); color: var(--green-900); }
 .admin-badge--gray  { background: var(--cream-200); color: var(--text-500); }
 
-/* Modal */
+/* ── Modal ── */
 .admin-modal-overlay {
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   background: rgba(0,0,0,0.45);
   backdrop-filter: blur(4px);
   z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
 }
 .admin-modal {
   background: var(--white);
@@ -167,50 +187,43 @@
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
   animation: fadeUp 0.2s ease;
+  -webkit-overflow-scrolling: touch;
 }
 .admin-modal__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px;
   border-bottom: 1px solid var(--cream-300);
-  position: sticky;
-  top: 0;
-  background: var(--white);
-  z-index: 1;
+  position: sticky; top: 0;
+  background: var(--white); z-index: 1;
 }
-.admin-modal__header h3 { font-size: 1.2rem; color: var(--text-900); }
-.admin-modal__header button { color: var(--text-400); transition: color var(--transition); }
+.admin-modal__header h3  { font-size: 1.1rem; color: var(--text-900); }
+.admin-modal__header button { color: var(--text-400); transition: color var(--transition); min-height: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center; }
 .admin-modal__header button:hover { color: var(--text-900); }
 
-.admin-modal__form { padding: 28px; display: flex; flex-direction: column; gap: 20px; }
-.admin-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.admin-modal__form { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.admin-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media (max-width: 560px) { .admin-form-grid { grid-template-columns: 1fr; } }
 
 .admin-checkboxes {
   grid-column: 1 / -1;
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+  display: flex; gap: 20px; flex-wrap: wrap;
 }
 .admin-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.88rem;
-  color: var(--text-700);
-  cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.88rem; color: var(--text-700); cursor: pointer;
+  min-height: 44px;
 }
 .admin-checkbox input[type="checkbox"] {
   accent-color: var(--green-700);
-  width: 16px; height: 16px;
-  cursor: pointer;
+  width: 18px; height: 18px; cursor: pointer;
 }
 
 .admin-modal__actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  padding-top: 8px;
-  border-top: 1px solid var(--cream-300);
+  display: flex; gap: 12px; justify-content: flex-end;
+  padding-top: 8px; border-top: 1px solid var(--cream-300);
+  flex-wrap: wrap;
+}
+@media (max-width: 480px) {
+  .admin-modal__actions { flex-direction: column-reverse; }
+  .admin-modal__actions .btn { width: 100%; }
 }

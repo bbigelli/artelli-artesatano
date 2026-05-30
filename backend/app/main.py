@@ -6,17 +6,18 @@ from app import crud, schemas
 from app.config import settings
 from contextlib import asynccontextmanager
 
-# Função de seed (síncrona)
+
 def seed_database():
     """Seed initial data if DB is empty."""
     db = SessionLocal()
     try:
-        # Admin user - verificar por email
+        # Admin user
         if not crud.get_user_by_email(db, "admin@artelli.com"):
             admin = schemas.UserCreate(
                 email="admin@artelli.com",
-                name="Administrador Artelli",
-                password="admin123",
+                username="admin",
+                full_name="Administrador Artelli",
+                password="Admin@123",
             )
             user = crud.create_user(db, admin)
             user.is_admin = True
@@ -28,7 +29,7 @@ def seed_database():
         # Categories
         categories = [
             {"name": "Terrários", "slug": "terrarios", "description": "Jardins em miniatura encapsulados em vidro"},
-            {"name": "Oratórios", "slug": "oratorios", "description": "Oratórios artesanais feitos argamassa/pedras e detalhes únicos"},
+            {"name": "Oratórios", "slug": "oratorios", "description": "Oratórios artesanais feitos com argamassa/pedras e detalhes únicos"},
             {"name": "Decoração", "slug": "decoracao", "description": "Peças decorativas exclusivas para sua casa"},
             {"name": "Presentes", "slug": "presentes", "description": "Itens perfeitos para presentear com exclusividade"},
         ]
@@ -36,11 +37,12 @@ def seed_database():
             if not crud.get_category_by_slug(db, cat_data["slug"]):
                 crud.create_category(db, schemas.CategoryCreate(**cat_data))
 
-        # Sample products
         cat_terrarios = crud.get_category_by_slug(db, "terrarios")
         cat_oratorios = crud.get_category_by_slug(db, "oratorios")
         cat_decoracao = crud.get_category_by_slug(db, "decoracao")
 
+        # FIX: image_url usa caminhos relativos "/xxx.png" para evitar problemas
+        # com cold start do Render e URLs absolutas quebradas
         sample_products = [
             {
                 "name": "Oratório em Pedra",
@@ -52,7 +54,7 @@ def seed_database():
                 "is_featured": True,
                 "is_customizable": True,
                 "production_days": 8,
-                "image_url": "https://artelli-frontend.onrender.com/oratorio_pedras.png",
+                "image_url": "/oratorio_pedras.png",
                 "category_id": cat_oratorios.id if cat_oratorios else None,
             },
             {
@@ -65,7 +67,7 @@ def seed_database():
                 "is_featured": True,
                 "is_customizable": True,
                 "production_days": 7,
-                "image_url": "https://artelli-frontend.onrender.com/oratorio_argamassa.png",
+                "image_url": "/oratorio_argamassa.png",
                 "category_id": cat_oratorios.id if cat_oratorios else None,
             },
             {
@@ -78,59 +80,59 @@ def seed_database():
                 "is_featured": True,
                 "is_customizable": True,
                 "production_days": 5,
-                "image_url": "https://artelli-frontend.onrender.com/mini_plaquinhas.png",
+                "image_url": "/mini_plaquinhas.png",
                 "category_id": cat_decoracao.id if cat_decoracao else None,
             },
             {
                 "name": "Placas Decorativas em Madeira",
                 "slug": "placas-decorativas-madeira",
                 "short_description": "Placas decorativas em madeira para complementar sua decoração.",
-                "description": "Confeccionadas em madeira, estas plaquinhas trazem um toque artesanal e único para qualquer ambiente. Disponíveis em diversos designs e cores.",
+                "description": "Confeccionadas em madeira, estas placas trazem um toque artesanal e único para qualquer ambiente. Disponíveis em diversos designs e cores.",
                 "price": 29.90,
                 "original_price": 35.00,
                 "is_featured": True,
                 "is_customizable": True,
                 "production_days": 8,
-                "image_url": "https://artelli-frontend.onrender.com/placas.png",
+                "image_url": "/placas.png",
                 "category_id": cat_decoracao.id if cat_decoracao else None,
             },
             {
-                "name": "Terrario em Vidro Grande",
+                "name": "Terrário em Vidro Grande",
                 "slug": "terrario-vidro-grande",
-                "short_description": "Terrário em vidro grande para plantas, autosustentavel e decorativo.",
-                "description": "Confeccionado em vidro, este terrário traz um toque moderno e elegante para qualquer ambiente. Ideal para plantas suculentas e cactos. Autosustentável, requer pouca manutenção e é perfeito para decorar sua casa ou escritório.",
+                "short_description": "Terrário em vidro grande para plantas, autossustentável e decorativo.",
+                "description": "Confeccionado em vidro, este terrário traz um toque moderno e elegante para qualquer ambiente. Ideal para plantas suculentas e cactos. Autossustentável, requer pouca manutenção.",
                 "price": 130.00,
                 "original_price": 180.00,
                 "is_featured": True,
                 "is_customizable": True,
                 "production_days": 10,
-                "image_url": "https://artelli-frontend.onrender.com/terrario_grande.png",
+                "image_url": "/terrario_grande.png",
                 "category_id": cat_terrarios.id if cat_terrarios else None,
             },
             {
-                "name": "Terrario em Vidro Médio",
+                "name": "Terrário em Vidro Médio",
                 "slug": "terrario-vidro-medio",
-                "short_description": "Terrário em vidro médio para plantas, autosustentavel e decorativo.",
-                "description": "Confeccionado em vidro, este terrário traz um toque moderno e elegante para qualquer ambiente. Ideal para plantas suculentas e cactos. Autosustentável, requer pouca manutenção e é perfeito para decorar sua casa ou escritório.",
+                "short_description": "Terrário em vidro médio para plantas, autossustentável e decorativo.",
+                "description": "Confeccionado em vidro, este terrário traz um toque moderno e elegante para qualquer ambiente. Ideal para plantas suculentas e cactos. Autossustentável, requer pouca manutenção.",
                 "price": 68.00,
                 "original_price": 89.00,
                 "is_featured": True,
                 "is_customizable": True,
                 "production_days": 10,
-                "image_url": "https://artelli-frontend.onrender.com/terrario_medio.png",
+                "image_url": "/terrario_medio.png",
                 "category_id": cat_terrarios.id if cat_terrarios else None,
             },
             {
-                "name": "Terrario em Vidro Pequeno",
+                "name": "Terrário em Vidro Pequeno",
                 "slug": "terrario-vidro-pequeno",
-                "short_description": "Terrário em vidro pequeno para plantas, autosustentavel e decorativo.",
-                "description": "Confeccionado em vidro, este terrário traz um toque moderno e elegante para qualquer ambiente. Ideal para plantas suculentas e cactos. Autosustentável, requer pouca manutenção e é perfeito para decorar sua casa ou escritório.",
+                "short_description": "Terrário em vidro pequeno para plantas, autossustentável e decorativo.",
+                "description": "Confeccionado em vidro, este terrário traz um toque moderno e elegante para qualquer ambiente. Ideal para plantas suculentas e cactos. Autossustentável, requer pouca manutenção.",
                 "price": 12.00,
                 "original_price": 20.00,
                 "is_featured": True,
                 "is_customizable": True,
                 "production_days": 10,
-                "image_url": "https://artelli-frontend.onrender.com/terrario_pequeno.png",
+                "image_url": "/terrario_pequeno.png",
                 "category_id": cat_terrarios.id if cat_terrarios else None,
             },
         ]
@@ -138,29 +140,25 @@ def seed_database():
         for prod_data in sample_products:
             if not crud.get_product_by_slug(db, prod_data["slug"]):
                 crud.create_product(db, schemas.ProductCreate(**prod_data))
-        
+
         print("✅ Database seeded successfully!")
 
     except Exception as e:
         print(f"❌ Error seeding database: {e}")
+        import traceback
+        traceback.print_exc()
     finally:
         db.close()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: cria as tabelas (OPERAÇÃO SÍNCRONA)
     Base.metadata.create_all(bind=engine)
-    
-    # Chama o seed
     seed_database()
-    
     yield
-    # Shutdown: fecha conexões (OPERAÇÃO SÍNCRONA)
     engine.dispose()
 
 
-# Cria o app
 app = FastAPI(
     title="Artelli Artesanato API",
     description="API completa para e-commerce de artesanato personalizado",
@@ -168,33 +166,36 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configuração CORS
+# FIX: CORS ampliado para cobrir todos os contextos do Render
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://artelli-frontend.onrender.com",
         "http://localhost:5173",
         "http://localhost:3000",
+        "http://localhost:80",
         "http://frontend",
+        "*",  # fallback para desenvolvimento
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Incluir as rotas
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(products.router)
 
-# Rotas públicas
+
 @app.get("/")
 def root():
     return {"status": "ok", "message": "Artelli Artesanato API is running 🌿"}
 
+
 @app.get("/api/health")
 def health():
     return {"status": "healthy"}
+
 
 @app.get("/api/config/whatsapp")
 def whatsapp_config():

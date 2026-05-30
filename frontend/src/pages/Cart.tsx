@@ -1,18 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, MessageCircle, ArrowLeft } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import api from '../api/client';
 import './Cart.css';
 
 export default function Cart() {
   const { items, totalItems, totalPrice, removeItem, updateQuantity, clearCart, checkoutWhatsApp } = useCart();
-  const [whatsapp, setWhatsapp] = useState('5511999999999');
+  // FIX: usa VITE_WHATSAPP_NUMBER baked no build como fallback;
+  // busca o número via axios (que usa a baseURL correta com VITE_API_URL)
+  const [whatsapp, setWhatsapp] = useState(
+    import.meta.env.VITE_WHATSAPP_NUMBER || '5511992216409'
+  );
 
   useEffect(() => {
-    fetch('/api/config/whatsapp')
-      .then((r) => r.json())
-      .then((d) => setWhatsapp(d.number))
-      .catch(() => {});
+    // FIX: era fetch('/api/config/whatsapp') — URL relativa não funciona no Render
+    // pois nginx não tem proxy para /api. Agora usa o cliente axios configurado.
+    api.get<{ number: string }>('/config/whatsapp')
+      .then((res) => setWhatsapp(res.data.number))
+      .catch(() => {/* mantém o fallback */});
   }, []);
 
   if (items.length === 0) {
@@ -41,14 +47,14 @@ export default function Cart() {
         </div>
 
         <div className="cart-page__layout">
-          {/* Items */}
           <div className="cart-items">
             {items.map((item) => (
               <div key={item.product.id} className="cart-item">
                 <div className="cart-item__img">
                   <img
-                    src={item.product.image_url || 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=200'}
+                    src={item.product.image_url || '/Logo.png'}
                     alt={item.product.name}
+                    onError={(e) => { (e.target as HTMLImageElement).src = '/Logo.png'; }}
                   />
                 </div>
                 <div className="cart-item__info">
@@ -82,7 +88,6 @@ export default function Cart() {
             ))}
           </div>
 
-          {/* Summary */}
           <div className="cart-summary">
             <h3>Resumo do pedido</h3>
             <div className="cart-summary__row">
@@ -98,7 +103,10 @@ export default function Cart() {
               <span>Estimativa</span>
               <strong>R$ {totalPrice.toFixed(2).replace('.', ',')}</strong>
             </div>
-            <button className="btn btn-primary btn-lg cart-summary__checkout" onClick={() => checkoutWhatsApp(whatsapp)}>
+            <button
+              className="btn btn-primary btn-lg cart-summary__checkout"
+              onClick={() => checkoutWhatsApp(whatsapp)}
+            >
               <MessageCircle size={18} /> Finalizar via WhatsApp
             </button>
             <p className="cart-summary__note">

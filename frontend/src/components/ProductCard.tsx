@@ -29,9 +29,10 @@ export default function ProductCard({ product }: Props) {
     <Link to={`/produtos/${product.slug}`} className="product-card">
       <div className="product-card__img-wrap">
         <img
-          src={product.image_url || 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600'}
+          src={product.image_url || '/Logo.png'}
           alt={product.name}
           loading="lazy"
+          onError={(e) => { (e.target as HTMLImageElement).src = '/Logo.png'; }}
         />
         {product.is_featured && (
           <span className="product-card__featured">

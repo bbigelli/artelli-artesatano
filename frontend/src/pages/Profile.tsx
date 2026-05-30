@@ -8,7 +8,7 @@ import './Profile.css';
 export default function Profile() {
   const { user, refreshUser, logout } = useAuth();
   const [form, setForm] = useState({
-    name: user?.name || '',
+    full_name: user?.full_name || '',
     phone: user?.phone || '',
     address: user?.address || '',
     city: user?.city || '',
@@ -43,7 +43,7 @@ export default function Profile() {
             <User size={32} />
           </div>
           <div>
-            <h1>{user?.name || user?.username}</h1>
+            <h1>{user?.full_name || user?.username}</h1>
             <p>{user?.email}</p>
             {user?.is_admin && <span className="badge badge-green">Administrador</span>}
           </div>
@@ -56,7 +56,7 @@ export default function Profile() {
               <div className="profile-form__grid">
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                   <label className="form-label">Nome completo</label>
-                  <input className="form-input" value={form.name} onChange={(e) => setField('name', e.target.value)} placeholder="Seu nome completo" />
+                  <input className="form-input" value={form.full_name} onChange={(e) => setField('full_name', e.target.value)} placeholder="Seu nome completo" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Telefone / WhatsApp</label>

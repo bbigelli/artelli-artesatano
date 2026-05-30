@@ -86,8 +86,9 @@ export function Login() {
 }
 
 export function Register() {
+  // FIX: campo renomeado de "name" para "full_name" para alinhar com o backend
   const [form, setForm] = useState({
-    email: '', username: '', name: '', phone: '',
+    email: '', username: '', full_name: '', phone: '',
     address: '', city: '', state: '', zip_code: '', password: '', confirm: '',
   });
   const [showPw, setShowPw] = useState(false);
@@ -105,12 +106,16 @@ export function Register() {
       toast.error('As senhas não coincidem');
       return;
     }
+    if (form.password.length < 6) {
+      toast.error('A senha deve ter pelo menos 6 caracteres');
+      return;
+    }
     setLoading(true);
     try {
       await register({
         email: form.email,
         username: form.username,
-        name: form.name,
+        full_name: form.full_name || undefined,  // FIX: era "name:"
         phone: form.phone || undefined,
         address: form.address || undefined,
         city: form.city || undefined,
@@ -148,7 +153,8 @@ export function Register() {
             </div>
             <div className="form-group">
               <label className="form-label">Nome completo</label>
-              <input className="form-input" value={form.name} onChange={(e) => setField('name', e.target.value)} placeholder="Maria Silva" />
+              {/* FIX: campo "name" → "full_name" */}
+              <input className="form-input" value={form.full_name} onChange={(e) => setField('full_name', e.target.value)} placeholder="Maria Silva" />
             </div>
             <div className="form-group">
               <label className="form-label">Telefone / WhatsApp</label>

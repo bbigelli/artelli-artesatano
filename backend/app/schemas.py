@@ -18,7 +18,7 @@ class TokenData(BaseModel):
 class UserBase(BaseModel):
     email: EmailStr
     username: str
-    name: str
+    full_name: str | None = None
     phone: str | None = None
     address: str | None = None
     city: str | None = None
@@ -31,7 +31,7 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
-    name: str
+    full_name: str | None = None
     phone: str | None = None
     address: str | None = None
     city: str | None = None
@@ -59,7 +59,7 @@ class UserList(BaseModel):
     id: int
     email: EmailStr
     username: str
-    name: str
+    full_name: str | None
     is_active: bool
     is_admin: bool
     created_at: datetime

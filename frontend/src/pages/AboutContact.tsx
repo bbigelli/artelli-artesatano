@@ -31,7 +31,7 @@ export function About() {
           </div>
           <div className="about-values">
             {[
-              { icon: <Heart size={28} />, title: 'Amor pelo ofício', desc: 'Cada entalhe, cada planta, cada nó de macramê é feito com atenção e intenção. Não produzimos em escala — produzimos com alma.' },
+              { icon: <Heart size={28} />, title: 'Amor pelo ofício', desc: 'Cada entalhe, cada planta é feito com atenção e intenção. Não produzimos em escala — produzimos com alma.' },
               { icon: <Leaf size={28} />, title: 'Respeito à natureza', desc: 'Usamos madeiras de reflorestamento, plantas nativas e materiais naturais. Beleza que não cobra da terra mais do que ela pode dar.' },
               { icon: <Award size={28} />, title: 'Excelência artesanal', desc: 'Cada peça passa por inspeção cuidadosa antes de ser embalada. Se não está no nosso padrão, não sai daqui.' },
             ].map((v) => (
@@ -56,7 +56,7 @@ export function About() {
             {[
               { year: '2019', title: 'O primeiro terrário', desc: 'Tudo começou com um pote de vidro, um punhado de terra e uma suculenta. O resultado encantou quem viu — e não parou mais.' },
               { year: '2021', title: 'Primeiras encomendas', desc: 'Amigos, depois amigos de amigos. A palavra foi passando e as encomendas chegando. Cada pedido, uma nova história.' },
-              { year: '2023', title: 'Expansão do catálogo', desc: 'Terrários, oratórios, macramês, vasos de cimento... A Artelli cresceu respeitando sua essência: feito à mão, com amor.' },
+              { year: '2023', title: 'Expansão do catálogo', desc: 'Terrários, oratórios, vasos de cimento... A Artelli cresceu respeitando sua essência: feito à mão, com amor.' },
               { year: '2026', title: 'Para todo o Brasil', desc: 'Hoje as peças Artelli chegam a todos os estados. A mesma qualidade, a mesma atenção, independente de onde você esteja.' },
             ].map((t, i) => (
               <div key={i} className="timeline-item">
@@ -93,7 +93,7 @@ export function Contact() {
                   <strong>WhatsApp</strong>
                   <span>Seg–Sex, 9h às 18h</span>
                   <a
-                    href="whatsapp://send?phone=5511992216409&text=Olá,%20Artelli!%20Gostaria%20de%20saber%20mais%20sobre%20as%20peças."
+                    href="https://wa.me/5511992216409?text=Olá,%20Artelli!%20Gostaria%20de%20saber%20mais%20sobre%20as%20peças."
                     target="_blank"
                     rel="noopener"
                     className="btn btn-primary"
@@ -127,7 +127,7 @@ export function Contact() {
             <h3>Antes de entrar em contato</h3>
             <p>Confira se sua dúvida está entre as mais comuns:</p>
             <ul className="contact-faq-list">
-              <li>✅ Fazemos entregas para todo o Brasil (exeto terrários fechados)</li>
+              <li>✅ Fazemos entregas para todo o Brasil (exeto terrários)</li>
               <li>✅ Todas as peças são 100% personalizáveis</li>
               <li>✅ Prazo de produção: 5 a 10 dias úteis</li>
               <li>✅ Embalagem especial incluída sem custo extra</li>

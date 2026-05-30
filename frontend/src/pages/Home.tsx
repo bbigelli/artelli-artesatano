@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     q: 'Vocês fazem entrega? Para todo o Brasil?',
-    a: 'Sim! Enviamos pelos Correios e transportadoras parceiras para todo o Brasil. O frete é calculado após confirmação do endereço no WhatsApp.',
+    a: 'Sim! Enviamos pelos Correios e transportadoras parceiras para todo o Brasil. O frete é calculado após confirmação do endereço no WhatsApp. APENAS TERRÁRIOS NÃO SÃO ENVIADOS VIA CORREIOS, DEVIDO AO RISCO DE DANOS. PARA ESTES, SUGERIMOS RETIRADA EM MÃO OU TRANSPORTADORA DE SUA CONFIANÇA.',
   },
   {
     q: 'Os terrários precisam de muita manutenção?',
@@ -61,7 +61,7 @@ export default function Home() {
               <Link to="/produtos" className="btn btn-primary btn-lg">
                 Explorar peças <ArrowRight size={18} />
               </Link>
-              <a href="whatsapp://send?phone=5511992216409" target="_blank" rel="noopener" className="btn btn-outline btn-lg">
+              <a href="https://wa.me/5511992216409" target="_blank" rel="noopener" className="btn btn-outline btn-lg">
                 Fazer encomenda
               </a>
             </div>
@@ -225,8 +225,8 @@ export default function Home() {
           <div className="testimonials-grid">
             {[
               { name: 'Mariana S.', city: 'São Paulo, SP', rating: 5, text: 'Encomendei um terrário personalizado e superou todas as expectativas. A atenção aos detalhes é impressionante. Já indiquei para cinco amigas!' },
-              { name: 'Lucas R.', city: 'Curitiba, PR', rating: 5, text: 'Comprei um oratório para minha mãe de aniversário. Ela ficou emocionada. A qualidade da madeira e o acabamento são dignos de loja de luxo.' },
-              { name: 'Camila F.', city: 'Rio de Janeiro, RJ', rating: 5, text: 'O kit presente foi um sucesso absoluto! Embalagem linda, terrário perfeito, e a dedicatória escrita à mão foi o toque que emocionou quem recebeu.' },
+              { name: 'Lucas R.', city: 'Curitiba, PR', rating: 5, text: 'Comprei um oratório para minha mãe de aniversário. Ela ficou emocionada. A qualidade da peça e o acabamento são dignos de loja de luxo.' },
+              { name: 'Camila F.', city: 'Rio de Janeiro, RJ', rating: 5, text: 'Muito fofo tudo que ela faz. Tudo muito bem feito e com muito carinho. Amei!' },
             ].map((t) => (
               <div key={t.name} className="testimonial-card">
                 <div className="testimonial-card__stars">
@@ -258,7 +258,7 @@ export default function Home() {
             <p>Descreva o que você imagina. Nós transformamos em realidade.</p>
           </div>
           <a
-            href="whatsapp://send?phone=5511992216409&text=Olá,%20Artelli!%20Gostaria%20de%20fazer%20uma%20encomenda%20personalizada."
+            href="https://wa.me/5511992216409?text=Olá,%20Artelli!%20Gostaria%20de%20fazer%20uma%20encomenda%20personalizada."
             target="_blank"
             rel="noopener"
             className="btn btn-sand btn-lg"

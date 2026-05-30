@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// FIX: removido o bloco "define" que sobrescrevia import.meta.env incorretamente.
+// Vite já lida nativamente com VITE_* vars via import.meta.env.
 export default defineConfig({
   plugins: [react()],
   server: {
@@ -11,9 +13,5 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-  },
-  // Importante para o TypeScript reconhecer as variáveis de ambiente
-  define: {
-    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL),
   },
 })
