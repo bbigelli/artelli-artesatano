@@ -120,7 +120,7 @@ export default function ProductDetail() {
               {product.is_customizable && (
                 <span className="tag">✏️ Personalizável</span>
               )}
-              <span className="tag">📦 Entrega para todo Brasil</span>
+              <span className="tag">📦 Entrega para todo Brasil(EXETO TERRÁRIOS)</span>
             </div>
 
             {product.is_customizable && (

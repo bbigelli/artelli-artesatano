@@ -18,6 +18,7 @@
 
 /* Logo */
 .header__logo {
+  width: 105px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -28,7 +29,7 @@
   letter-spacing: 0.02em;
   flex-shrink: 0;
 }
-.header__logo-icon { color: var(--green-700); flex-shrink: 0; }
+.header__logo-icon { color: var(--green-700); flex-shrink: 0;  }
 .header__logo:hover { color: var(--green-700); }
 
 /* Nav */
