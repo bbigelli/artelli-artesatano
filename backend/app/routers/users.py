@@ -57,7 +57,7 @@ def get_user(
 @router.put("/{user_id}", response_model=schemas.UserResponse)
 def admin_update(
     user_id: int,
-    update: schemas.UserAdminUpdate,
+    update: schemas.AdminUserUpdate,
     db: Session = Depends(get_db),
     _=Depends(get_current_admin),
 ):
