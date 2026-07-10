@@ -37,9 +37,18 @@ class UserUpdate(BaseModel):
     zip_code: Optional[str] = None
 
 
-class AdminUserUpdate(UserUpdate):
+class AdminUserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    zip_code: Optional[str] = None
     is_active: Optional[bool] = None
     is_admin: Optional[bool] = None
+
+# Alias para compatibilidade
+UserAdminUpdate = AdminUserUpdate
 
 
 class UserResponse(BaseModel):
@@ -151,5 +160,4 @@ class UserList(BaseModel):
     is_active: bool
     is_admin: bool
     created_at: datetime
-    
     model_config = {"from_attributes": True}
