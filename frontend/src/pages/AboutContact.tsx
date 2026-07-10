@@ -78,25 +78,18 @@ export default function AboutContact() {
                 Respondemos em até 24 horas.
               </p>
               <div className="contact-links">
-                <a href="https://wa.me/5511999999999" target="_blank" rel="noopener" className="contact-link contact-link--wa">
+                <a href="https://wa.me/5511992216409" target="_blank" rel="noopener" className="contact-link contact-link--wa">
                   <MessageCircle size={20} />
                   <div>
                     <strong>WhatsApp</strong>
-                    <span>(11) 99999-9999</span>
+                    <span>(11) 99221-6409</span>
                   </div>
                 </a>
-                <a href="https://instagram.com/artelliartesanato" target="_blank" rel="noopener" className="contact-link">
+                <a href="https://www.instagram.com/artelli.artesanato/" target="_blank" rel="noopener" className="contact-link">
                   <Instagram size={20} />
                   <div>
                     <strong>Instagram</strong>
                     <span>@artelliartesanato</span>
-                  </div>
-                </a>
-                <a href="mailto:contato@artelli.com.br" className="contact-link">
-                  <Mail size={20} />
-                  <div>
-                    <strong>E-mail</strong>
-                    <span>contato@artelli.com.br</span>
                   </div>
                 </a>
                 <div className="contact-link">
@@ -110,7 +103,7 @@ export default function AboutContact() {
                   <Clock size={20} />
                   <div>
                     <strong>Horário</strong>
-                    <span>Seg–Sáb, 9h–18h</span>
+                    <span>Seg–Sex, 9h–18h</span>
                   </div>
                 </div>
               </div>
@@ -120,7 +113,7 @@ export default function AboutContact() {
               <h3>Pronta para encomendar?</h3>
               <p>Clique abaixo e fale diretamente com a gente. Resposta rápida garantida.</p>
               <a
-                href="https://wa.me/5511999999999?text=Olá%2C+Artelli!+Gostaria+de+fazer+uma+encomenda."
+                href="https://wa.me/5511992216409?text=Olá%2C+Artelli!+Gostaria+de+fazer+uma+encomenda."
                 target="_blank" rel="noopener"
                 className="btn btn-sand"
                 style={{ width: '100%', justifyContent: 'center', fontSize: '1rem' }}

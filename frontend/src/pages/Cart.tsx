@@ -7,7 +7,7 @@ import './Cart.css';
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, clearCart, totalPrice, checkoutWhatsApp } = useCart();
-  const [waNumber, setWaNumber] = useState('5511999999999');
+  const [waNumber, setWaNumber] = useState('5511992216409');
 
   useEffect(() => {
     api.get<{ number: string }>('/config/whatsapp')

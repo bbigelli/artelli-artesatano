@@ -45,7 +45,7 @@ export default function ProductDetail() {
       `Olá, Artelli! 🌿 Tenho interesse no produto:\n*${product!.name}*\nR$ ${product!.price.toFixed(2)}`
       + (customization ? `\n\nPersonalização desejada: ${customization}` : '')
     );
-    window.open(`https://wa.me/5511999999999?text=${msg}`, '_blank');
+    window.open(`https://wa.me/5511992216409?text=${msg}`, '_blank');
   }
 
   return (

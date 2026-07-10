@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Instagram, Heart } from 'lucide-react';
 import './Footer.css';
 
-const WA = import.meta.env.VITE_API_URL ? '' : '5511999999999';
+const WA = import.meta.env.VITE_API_URL ? '' : '5511992216409';
 
 export default function Footer() {
   return (
@@ -43,7 +43,7 @@ export default function Footer() {
           <h4>Contato</h4>
           <ul>
             <li>
-              <a href="https://wa.me/5511999999999" target="_blank" rel="noopener">
+              <a href="https://wa.me/5511992216409" target="_blank" rel="noopener">
                 WhatsApp
               </a>
             </li>

@@ -79,12 +79,17 @@ def list_featured(db: Session = Depends(get_db)):
     return crud.get_products(db, featured_only=True, limit=6)
 
 
-@router.get("/{product_id}", response_model=schemas.ProductResponse)
-def get_product(product_id: int, db: Session = Depends(get_db)):
-    product = crud.get_product(db, product_id)
-    if not product or not product.is_active:
-        raise HTTPException(status_code=404, detail="Produto não encontrado")
-    return product
+# ─── Admin list all products (including inactive) ─────────────────────────────
+# IMPORTANTE: deve ficar ANTES de /{product_id} para não colidir
+
+@router.get("/admin/all", response_model=list[schemas.ProductList])
+def admin_list_products(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    _=Depends(get_current_admin),
+):
+    return crud.get_products(db, skip=skip, limit=limit, active_only=False)
 
 
 @router.get("/slug/{slug}", response_model=schemas.ProductResponse)
@@ -130,13 +135,9 @@ def delete_product(
         raise HTTPException(status_code=404, detail="Produto não encontrado")
 
 
-# ─── Admin list all products (including inactive) ─────────────────────────────
-
-@router.get("/admin/all", response_model=list[schemas.ProductList])
-def admin_list_products(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
-    _=Depends(get_current_admin),
-):
-    return crud.get_products(db, skip=skip, limit=limit, active_only=False)
+@router.get("/{product_id}", response_model=schemas.ProductResponse)
+def get_product(product_id: int, db: Session = Depends(get_db)):
+    product = crud.get_product(db, product_id)
+    if not product or not product.is_active:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    return product

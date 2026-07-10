@@ -37,7 +37,7 @@ export default function Home() {
                 Ver catálogo <ArrowRight size={16} />
               </Link>
               <a
-                href="https://wa.me/5511999999999?text=Olá%2C+Artelli!+Gostaria+de+conhecer+as+peças."
+                href="https://wa.me/5511992216409?text=Olá%2C+Artelli!+Gostaria+de+conhecer+as+peças."
                 target="_blank" rel="noopener"
                 className="btn btn-outline"
               >
@@ -108,7 +108,7 @@ export default function Home() {
             <p>Encomende sua peça personalizada diretamente pelo WhatsApp. Rápido, simples e sem burocracia.</p>
           </div>
           <a
-            href="https://wa.me/5511999999999?text=Olá%2C+Artelli!+Gostaria+de+fazer+uma+encomenda+personalizada."
+            href="https://wa.me/5511992216409?text=Olá%2C+Artelli!+Gostaria+de+fazer+uma+encomenda+personalizada."
             target="_blank" rel="noopener"
             className="btn btn-sand"
           >
