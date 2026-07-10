@@ -1,369 +1,266 @@
-import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Package, Users, LayoutDashboard, X, Check } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Package, Users, Plus, Pencil, Trash2, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { productService } from '../../api/products';
 import { userService } from '../../api/users';
-import { ProductList, Category, User, ProductCreate } from '../../types';
+import { Product, User, Category, ProductCreate } from '../../types';
 import toast from 'react-hot-toast';
 import './AdminPanel.css';
 
-type Tab = 'dashboard' | 'products' | 'users' | 'categories';
+type Tab = 'products' | 'users';
 
-const emptyProduct: ProductCreate = {
+const EMPTY_PRODUCT: ProductCreate = {
   name: '', slug: '', description: '', short_description: '',
   price: 0, original_price: undefined, image_url: '', image_url_2: '', image_url_3: '',
-  is_featured: false, is_active: true, is_customizable: true, production_days: 7,
-  category_id: undefined,
+  is_featured: false, is_active: true, is_customizable: false,
+  production_days: 7, category_id: undefined,
 };
 
 export default function AdminPanel() {
-  const [tab, setTab] = useState<Tab>('dashboard');
-  const [products, setProducts] = useState<ProductList[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [tab, setTab] = useState<Tab>('products');
+  const [products, setProducts] = useState<Product[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [showModal, setShowModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<ProductList | null>(null);
-  const [form, setForm] = useState<ProductCreate>(emptyProduct);
-  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editProduct, setEditProduct] = useState<ProductCreate | null>(null);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => { loadAll(); }, []);
 
   async function loadAll() {
+    setLoading(true);
     try {
-      const [p, c, u] = await Promise.all([
-        productService.adminListAll(),
-        productService.getCategories(),
+      const [prods, cats, usrs] = await Promise.all([
+        productService.adminList(),
+        productService.categories(),
         userService.list(),
       ]);
-      setProducts(p);
-      setCategories(c);
-      setUsers(u);
-    } catch {
-      toast.error('Erro ao carregar dados');
-    }
+      setProducts(prods as any);
+      setCategories(cats);
+      setUsers(usrs);
+    } catch { toast.error('Erro ao carregar dados'); }
+    finally { setLoading(false); }
   }
 
-  function openCreate() {
-    setEditingProduct(null);
-    setForm(emptyProduct);
-    setShowModal(true);
-  }
-
-  function openEdit(p: ProductList) {
-    setEditingProduct(p);
-    setForm({
-      name: p.name, slug: p.slug, description: '',
-      short_description: p.short_description || '',
-      price: p.price, original_price: p.original_price ?? undefined,
-      image_url: p.image_url || '', image_url_2: '', image_url_3: '',
+  function openNew() { setEditProduct({ ...EMPTY_PRODUCT }); setEditId(null); setShowForm(true); }
+  function openEdit(p: Product) {
+    setEditProduct({
+      name: p.name, slug: p.slug, description: p.description || '',
+      short_description: p.short_description || '', price: p.price,
+      original_price: p.original_price || undefined, image_url: p.image_url || '',
+      image_url_2: p.image_url_2 || '', image_url_3: p.image_url_3 || '',
       is_featured: p.is_featured, is_active: p.is_active,
       is_customizable: p.is_customizable, production_days: p.production_days,
       category_id: p.category?.id,
     });
-    setShowModal(true);
+    setEditId(p.id);
+    setShowForm(true);
   }
 
-  async function handleSaveProduct(e: React.FormEvent) {
+  function setField(field: string, value: any) {
+    setEditProduct((prev) => prev ? { ...prev, [field]: value } : prev);
+  }
+
+  async function saveProduct(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
+    if (!editProduct) return;
     try {
-      if (editingProduct) {
-        await productService.update(editingProduct.id, form);
-        toast.success('Produto atualizado!');
-      } else {
-        await productService.create(form);
-        toast.success('Produto criado!');
-      }
-      setShowModal(false);
-      loadAll();
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 'Erro ao salvar produto';
-      toast.error(msg);
-    } finally {
-      setLoading(false);
+      if (editId) { await productService.update(editId, editProduct); toast.success('Produto atualizado!'); }
+      else { await productService.create(editProduct); toast.success('Produto criado! 🌿'); }
+      setShowForm(false); setEditProduct(null); setEditId(null);
+      await loadAll();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || 'Erro ao salvar');
     }
   }
 
-  async function handleDeleteProduct(id: number, name: string) {
-    if (!confirm(`Excluir "${name}"?`)) return;
-    try {
-      await productService.remove(id);
-      toast.success('Produto excluído');
-      loadAll();
-    } catch { toast.error('Erro ao excluir'); }
+  async function deleteProduct(id: number) {
+    if (!confirm('Desativar este produto?')) return;
+    try { await productService.remove(id); toast.success('Produto desativado'); await loadAll(); }
+    catch { toast.error('Erro ao desativar'); }
   }
 
-  async function handleToggleAdmin(user: User) {
+  async function toggleAdmin(u: User) {
     try {
-      await userService.adminUpdate(user.id, { is_admin: !user.is_admin } as Partial<User>);
+      await userService.adminUpdate(u.id, { is_admin: !u.is_admin });
       toast.success('Usuário atualizado');
-      loadAll();
-    } catch { toast.error('Erro'); }
-  }
-
-  async function handleDeleteUser(id: number) {
-    if (!confirm('Excluir este usuário?')) return;
-    try {
-      await userService.remove(id);
-      toast.success('Usuário excluído');
-      loadAll();
-    } catch { toast.error('Erro ao excluir'); }
-  }
-
-  function slugify(text: string) {
-    return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      await loadAll();
+    } catch { toast.error('Erro ao atualizar'); }
   }
 
   return (
-    <div className="admin">
-      {/* Sidebar */}
-      <aside className="admin-sidebar">
-        <div className="admin-sidebar__brand">
-          <span>🌿 Admin</span>
-        </div>
-        <nav className="admin-sidebar__nav">
-          {([
-            ['dashboard', 'Dashboard', <LayoutDashboard size={18} />],
-            ['products', 'Produtos', <Package size={18} />],
-            ['users', 'Usuários', <Users size={18} />],
-          ] as [Tab, string, React.ReactNode][]).map(([id, label, icon]) => (
-            <button
-              key={id}
-              className={`admin-sidebar__link ${tab === id ? 'active' : ''}`}
-              onClick={() => setTab(id)}
-            >
-              {icon} {label}
-            </button>
-          ))}
-        </nav>
-      </aside>
-
-      {/* Main */}
-      <main className="admin-main">
-        {/* Dashboard */}
-        {tab === 'dashboard' && (
-          <div className="admin-section fade-up">
-            <h2>Dashboard</h2>
-            <div className="admin-stats">
-              <div className="admin-stat">
-                <span className="admin-stat__num">{products.length}</span>
-                <span className="admin-stat__label">Produtos</span>
-              </div>
-              <div className="admin-stat">
-                <span className="admin-stat__num">{products.filter(p => p.is_active).length}</span>
-                <span className="admin-stat__label">Produtos ativos</span>
-              </div>
-              <div className="admin-stat">
-                <span className="admin-stat__num">{users.length}</span>
-                <span className="admin-stat__label">Usuários</span>
-              </div>
-              <div className="admin-stat">
-                <span className="admin-stat__num">{categories.length}</span>
-                <span className="admin-stat__label">Categorias</span>
-              </div>
-            </div>
+    <main className="admin-page">
+      <div className="container">
+        <div className="admin-header">
+          <div>
+            <h1 className="admin-title">Painel <em>Admin</em></h1>
+            <p>Gerencie produtos e usuários da Artelli.</p>
           </div>
-        )}
+          <div className="admin-stats">
+            <div className="admin-stat"><span>{products.length}</span><label>Produtos</label></div>
+            <div className="admin-stat"><span>{users.length}</span><label>Usuários</label></div>
+          </div>
+        </div>
 
-        {/* Products */}
+        <div className="admin-tabs">
+          <button className={`admin-tab ${tab === 'products' ? 'admin-tab--active' : ''}`} onClick={() => setTab('products')}><Package size={16} /> Produtos</button>
+          <button className={`admin-tab ${tab === 'users' ? 'admin-tab--active' : ''}`} onClick={() => setTab('users')}><Users size={16} /> Usuários</button>
+        </div>
+
+        {/* ── PRODUTOS ── */}
         {tab === 'products' && (
-          <div className="admin-section fade-up">
+          <div className="admin-section">
             <div className="admin-section__header">
               <h2>Produtos</h2>
-              <button className="btn btn-primary btn-sm" onClick={openCreate}>
-                <Plus size={15} /> Novo produto
-              </button>
+              <button className="btn btn-primary" onClick={openNew}><Plus size={16} /> Novo produto</button>
             </div>
-            <div className="admin-table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Produto</th>
-                    <th>Categoria</th>
-                    <th>Preço</th>
-                    <th>Status</th>
-                    <th>Destaque</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((p) => (
-                    <tr key={p.id}>
-                      <td>
-                        <div className="admin-table__product">
-                          <img src={p.image_url || 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=60'} alt={p.name} />
-                          <div>
-                            <strong>{p.name}</strong>
-                            <small>{p.slug}</small>
+
+            {/* Formulário */}
+            {showForm && editProduct && (
+              <form className="admin-form" onSubmit={saveProduct}>
+                <div className="admin-form__header">
+                  <h3>{editId ? 'Editar produto' : 'Novo produto'}</h3>
+                  <button type="button" onClick={() => setShowForm(false)} className="admin-form__close">✕</button>
+                </div>
+                <div className="admin-form__grid">
+                  <div className="form-group" style={{ gridColumn: '1/-1' }}>
+                    <label className="form-label">Nome *</label>
+                    <input className="form-input" required value={editProduct.name} onChange={(e) => setField('name', e.target.value)} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Slug *</label>
+                    <input className="form-input" required value={editProduct.slug} onChange={(e) => setField('slug', e.target.value)} placeholder="ex: terrario-vidro-grande" />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Categoria</label>
+                    <select className="form-input" value={editProduct.category_id || ''} onChange={(e) => setField('category_id', e.target.value ? Number(e.target.value) : undefined)}>
+                      <option value="">Sem categoria</option>
+                      {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Preço (R$) *</label>
+                    <input className="form-input" type="number" step="0.01" min="0" required value={editProduct.price} onChange={(e) => setField('price', parseFloat(e.target.value))} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Preço original (R$)</label>
+                    <input className="form-input" type="number" step="0.01" min="0" value={editProduct.original_price || ''} onChange={(e) => setField('original_price', e.target.value ? parseFloat(e.target.value) : undefined)} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Dias de produção</label>
+                    <input className="form-input" type="number" min="1" value={editProduct.production_days} onChange={(e) => setField('production_days', parseInt(e.target.value))} />
+                  </div>
+                  <div className="form-group" style={{ gridColumn: '1/-1' }}>
+                    <label className="form-label">Descrição curta</label>
+                    <input className="form-input" value={editProduct.short_description || ''} onChange={(e) => setField('short_description', e.target.value)} />
+                  </div>
+                  <div className="form-group" style={{ gridColumn: '1/-1' }}>
+                    <label className="form-label">Descrição completa</label>
+                    <textarea className="form-input" rows={4} value={editProduct.description || ''} onChange={(e) => setField('description', e.target.value)} style={{ resize: 'vertical' }} />
+                  </div>
+                  <div className="form-group" style={{ gridColumn: '1/-1' }}>
+                    <label className="form-label">URL da imagem principal</label>
+                    <input className="form-input" value={editProduct.image_url || ''} onChange={(e) => setField('image_url', e.target.value)} placeholder="/terrario_grande.png ou https://..." />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Imagem 2 (opcional)</label>
+                    <input className="form-input" value={editProduct.image_url_2 || ''} onChange={(e) => setField('image_url_2', e.target.value)} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Imagem 3 (opcional)</label>
+                    <input className="form-input" value={editProduct.image_url_3 || ''} onChange={(e) => setField('image_url_3', e.target.value)} />
+                  </div>
+                  <div className="admin-checkboxes">
+                    {[
+                      { key: 'is_featured', label: '⭐ Destaque' },
+                      { key: 'is_active', label: '✅ Ativo' },
+                      { key: 'is_customizable', label: '✏️ Personalizável' },
+                    ].map(({ key, label }) => (
+                      <label key={key} className="admin-checkbox">
+                        <input type="checkbox" checked={!!(editProduct as any)[key]} onChange={(e) => setField(key, e.target.checked)} />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="admin-form__actions">
+                  <button type="submit" className="btn btn-primary">{editId ? 'Salvar alterações' : 'Criar produto'}</button>
+                  <button type="button" className="btn btn-outline" onClick={() => setShowForm(false)}>Cancelar</button>
+                </div>
+              </form>
+            )}
+
+            {/* Tabela */}
+            {loading ? <div className="admin-loading">Carregando...</div> : (
+              <div className="admin-table-wrap">
+                <table className="admin-table">
+                  <thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Status</th><th>Ações</th></tr></thead>
+                  <tbody>
+                    {products.map((p) => (
+                      <tr key={p.id} className={!p.is_active ? 'row-inactive' : ''}>
+                        <td>
+                          <div className="table-product">
+                            {p.image_url && <img src={p.image_url} alt={p.name} className="table-thumb" />}
+                            <div>
+                              <strong>{p.name}</strong>
+                              {p.is_featured && <span className="table-badge table-badge--gold">Destaque</span>}
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td>{p.category?.name || '—'}</td>
-                      <td>R$ {p.price.toFixed(2)}</td>
-                      <td>
-                        <span className={`admin-badge ${p.is_active ? 'admin-badge--green' : 'admin-badge--gray'}`}>
-                          {p.is_active ? 'Ativo' : 'Inativo'}
-                        </span>
-                      </td>
-                      <td>
-                        {p.is_featured ? <Check size={16} color="var(--green-700)" /> : '—'}
-                      </td>
-                      <td>
-                        <div className="admin-table__actions">
-                          <button className="admin-icon-btn" onClick={() => openEdit(p)} title="Editar">
-                            <Edit2 size={15} />
-                          </button>
-                          <button className="admin-icon-btn danger" onClick={() => handleDeleteProduct(p.id, p.name)} title="Excluir">
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        </td>
+                        <td>{p.category?.name || '—'}</td>
+                        <td>
+                          <div>R$ {p.price.toFixed(2)}</div>
+                          {p.original_price && <small style={{ color: 'var(--text-400)', textDecoration: 'line-through' }}>R$ {p.original_price.toFixed(2)}</small>}
+                        </td>
+                        <td>
+                          <span className={`table-badge ${p.is_active ? 'table-badge--green' : 'table-badge--gray'}`}>
+                            {p.is_active ? 'Ativo' : 'Inativo'}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="table-actions">
+                            <button className="table-btn" onClick={() => openEdit(p)} title="Editar"><Pencil size={15} /></button>
+                            <button className="table-btn table-btn--danger" onClick={() => deleteProduct(p.id)} title="Desativar"><Trash2 size={15} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Users */}
+        {/* ── USUÁRIOS ── */}
         {tab === 'users' && (
-          <div className="admin-section fade-up">
-            <div className="admin-section__header">
-              <h2>Usuários</h2>
-            </div>
-            <div className="admin-table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Usuário</th>
-                    <th>E-mail</th>
-                    <th>Admin</th>
-                    <th>Status</th>
-                    <th>Cadastro</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((u) => (
-                    <tr key={u.id}>
-                      <td><strong>{u.username}</strong><br /><small>{u.full_name}</small></td>
-                      <td>{u.email}</td>
-                      <td>
-                        <button
-                          className={`admin-badge ${u.is_admin ? 'admin-badge--green' : 'admin-badge--gray'}`}
-                          onClick={() => handleToggleAdmin(u)}
-                          title="Alternar admin"
-                          style={{ cursor: 'pointer', border: 'none' }}
-                        >
-                          {u.is_admin ? 'Admin' : 'Usuário'}
-                        </button>
-                      </td>
-                      <td>
-                        <span className={`admin-badge ${u.is_active ? 'admin-badge--green' : 'admin-badge--gray'}`}>
-                          {u.is_active ? 'Ativo' : 'Inativo'}
-                        </span>
-                      </td>
-                      <td>{new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
-                      <td>
-                        <button className="admin-icon-btn danger" onClick={() => handleDeleteUser(u.id)}>
-                          <Trash2 size={15} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="admin-section">
+            <div className="admin-section__header"><h2>Usuários</h2></div>
+            {loading ? <div className="admin-loading">Carregando...</div> : (
+              <div className="admin-table-wrap">
+                <table className="admin-table">
+                  <thead><tr><th>Usuário</th><th>Email</th><th>Membro desde</th><th>Status</th><th>Admin</th></tr></thead>
+                  <tbody>
+                    {users.map((u) => (
+                      <tr key={u.id}>
+                        <td><strong>@{u.username}</strong><br /><small style={{ color: 'var(--text-500)' }}>{u.full_name || '—'}</small></td>
+                        <td>{u.email}</td>
+                        <td>{new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
+                        <td><span className={`table-badge ${u.is_active ? 'table-badge--green' : 'table-badge--gray'}`}>{u.is_active ? 'Ativo' : 'Inativo'}</span></td>
+                        <td>
+                          <button className={`table-btn ${u.is_admin ? 'table-btn--active' : ''}`} onClick={() => toggleAdmin(u)} title="Toggle admin">
+                            {u.is_admin ? <Eye size={15} /> : <EyeOff size={15} />}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
-      </main>
-
-      {/* Product Modal */}
-      {showModal && (
-        <div className="admin-modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal__header">
-              <h3>{editingProduct ? 'Editar produto' : 'Novo produto'}</h3>
-              <button onClick={() => setShowModal(false)}><X size={20} /></button>
-            </div>
-            <form onSubmit={handleSaveProduct} className="admin-modal__form">
-              <div className="admin-form-grid">
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label className="form-label">Nome *</label>
-                  <input
-                    className="form-input" required
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value, slug: slugify(e.target.value) })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Slug *</label>
-                  <input className="form-input" required value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Categoria</label>
-                  <select
-                    className="form-input"
-                    value={form.category_id || ''}
-                    onChange={(e) => setForm({ ...form, category_id: e.target.value ? Number(e.target.value) : undefined })}
-                  >
-                    <option value="">Sem categoria</option>
-                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Preço *</label>
-                  <input className="form-input" type="number" step="0.01" required value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Preço original (opcional)</label>
-                  <input className="form-input" type="number" step="0.01" value={form.original_price || ''} onChange={(e) => setForm({ ...form, original_price: e.target.value ? Number(e.target.value) : undefined })} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Dias de produção</label>
-                  <input className="form-input" type="number" value={form.production_days} onChange={(e) => setForm({ ...form, production_days: Number(e.target.value) })} />
-                </div>
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label className="form-label">Descrição curta</label>
-                  <input className="form-input" value={form.short_description} onChange={(e) => setForm({ ...form, short_description: e.target.value })} />
-                </div>
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label className="form-label">Descrição completa</label>
-                  <textarea className="form-input" rows={4} style={{ resize: 'vertical' }} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-                </div>
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label className="form-label">URL da imagem principal</label>
-                  <input className="form-input" type="url" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="https://..." />
-                </div>
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label className="form-label">URL da imagem 2</label>
-                  <input className="form-input" type="url" value={form.image_url_2} onChange={(e) => setForm({ ...form, image_url_2: e.target.value })} placeholder="https://..." />
-                </div>
-                <div className="admin-checkboxes">
-                  <label className="admin-checkbox">
-                    <input type="checkbox" checked={form.is_featured} onChange={(e) => setForm({ ...form, is_featured: e.target.checked })} />
-                    Destaque
-                  </label>
-                  <label className="admin-checkbox">
-                    <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
-                    Ativo
-                  </label>
-                  <label className="admin-checkbox">
-                    <input type="checkbox" checked={form.is_customizable} onChange={(e) => setForm({ ...form, is_customizable: e.target.checked })} />
-                    Personalizável
-                  </label>
-                </div>
-              </div>
-              <div className="admin-modal__actions">
-                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)}>Cancelar</button>
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Salvando...' : (editingProduct ? 'Salvar alterações' : 'Criar produto')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+      </div>
+    </main>
   );
 }

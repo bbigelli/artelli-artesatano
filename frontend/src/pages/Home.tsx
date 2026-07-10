@@ -1,130 +1,97 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Leaf, Heart, Package, Star, CheckCircle, ChevronDown } from 'lucide-react';
+import { ArrowRight, Leaf, Heart, MessageCircle } from 'lucide-react';
 import { productService } from '../api/products';
 import { ProductList } from '../types';
 import ProductCard from '../components/ProductCard';
 import './Home.css';
 
-const faqs = [
-  {
-    q: 'Como funciona o processo de encomenda?',
-    a: 'É simples: escolha os produtos que te encantaram, adicione ao carrinho e clique em "Finalizar via WhatsApp". Você será direcionado para nossa conversa com todos os detalhes do pedido já formatados.',
-  },
-  {
-    q: 'Posso personalizar cores, tamanhos ou incluir dedicatórias?',
-    a: 'Sim! A personalização é o coração do que fazemos. No WhatsApp, conte exatamente o que imagina — cores, plantas preferidas, mensagem especial — e criamos algo único para você.',
-  },
-  {
-    q: 'Qual o prazo de produção?',
-    a: 'Cada produto tem seu prazo indicado na página, geralmente entre 5 e 10 dias úteis. Peças muito personalizadas podem levar um pouco mais — sempre confirmamos antes de iniciar.',
-  },
-  {
-    q: 'Vocês fazem entrega? Para todo o Brasil?',
-    a: 'Sim! Enviamos pelos Correios e transportadoras parceiras para todo o Brasil. O frete é calculado após confirmação do endereço no WhatsApp. APENAS TERRÁRIOS NÃO SÃO ENVIADOS VIA CORREIOS, DEVIDO AO RISCO DE DANOS. PARA ESTES, SUGERIMOS RETIRADA EM MÃO OU TRANSPORTADORA DE SUA CONFIANÇA.',
-  },
-  {
-    q: 'Os terrários precisam de muita manutenção?',
-    a: 'Terrários fechados são praticamente autossuficientes. Os abertos pedem regas esporádicas. Enviamos um guia de cuidados com cada peça para que você aproveite sem preocupações.',
-  },
-];
-
 export default function Home() {
   const [featured, setFeatured] = useState<ProductList[]>([]);
   const [loading, setLoading] = useState(true);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
-    productService.featured().then(setFeatured).finally(() => setLoading(false));
+    productService.featured()
+      .then(setFeatured)
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   return (
     <main className="home">
-      {/* Hero */}
+      {/* ── HERO ── */}
       <section className="hero">
-        <div className="hero__bg">
-          <div className="hero__blob hero__blob--1" />
-          <div className="hero__blob hero__blob--2" />
-        </div>
         <div className="container hero__inner">
-          <div className="hero__content fade-up">
-            <span className="section-label">Artesanato Premium · Feito à Mão</span>
-            <h1 className="hero__headline">
-              Decoração que conta<br />
+          <div className="hero__text">
+            <p className="hero__eyebrow">Artesanato de Colecionador</p>
+            <h1 className="hero__title">
+              Cada peça conta<br />
               <em>a sua história.</em>
             </h1>
-            <p className="hero__sub">
-              Terrários, oratórios e peças únicas criadas com dedicação artesanal.
-              Cada encomenda é tratada como uma obra de arte — porque para nós, é.
+            <p className="hero__subtitle">
+              Terrários, oratórios e decorações únicas, criados à mão com materiais selecionados.
+              Peças que transformam espaços em ambientes com alma e identidade.
             </p>
-            <div className="hero__ctas">
-              <Link to="/produtos" className="btn btn-primary btn-lg">
-                Explorar peças <ArrowRight size={18} />
+            <div className="hero__actions">
+              <Link to="/products" className="btn btn-primary">
+                Ver catálogo <ArrowRight size={16} />
               </Link>
-              <a href="https://wa.me/5511992216409" target="_blank" rel="noopener" className="btn btn-outline btn-lg">
-                Fazer encomenda
+              <a
+                href="https://wa.me/5511999999999?text=Olá%2C+Artelli!+Gostaria+de+conhecer+as+peças."
+                target="_blank" rel="noopener"
+                className="btn btn-outline"
+              >
+                <MessageCircle size={16} /> Falar no WhatsApp
               </a>
             </div>
-            <div className="hero__trust">
-              <span><CheckCircle size={15} /> Feito à mão</span>
-              <span><CheckCircle size={15} /> 100% personalizado</span>
-              <span><CheckCircle size={15} /> Entrega para todo Brasil</span>
+          </div>
+          <div className="hero__visual">
+            <img src="/terrario_grande.png" alt="Terrário Artelli" className="hero__img" />
+            <div className="hero__badge">
+              <Leaf size={16} />
+              <span>Feito à mão com amor</span>
             </div>
           </div>
-          <div className="hero__visual fade-up" style={{ animationDelay: '0.15s' }}>
-            <div className="hero__img-frame">
-              <img
-                src="https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=700"
-                alt="Terrário Artelli - decoração artesanal"
-              />
-              <div className="hero__img-badge">
-                <Leaf size={16} />
-                <span>Feito com amor</span>
+        </div>
+      </section>
+
+      {/* ── DIFERENCIAIS ── */}
+      <section className="section differentials">
+        <div className="container">
+          <div className="differentials__grid">
+            {[
+              { icon: '✦', title: 'Exclusividade Real', desc: 'Nenhuma peça é idêntica. Você recebe algo que não existia antes.' },
+              { icon: '🤝', title: 'Feito com Amor', desc: 'Cada detalhe é tocado por mãos apaixonadas. Isso aparece no resultado.' },
+              { icon: '💬', title: 'Atendimento Direto', desc: 'Você fala com quem cria. Sem intermediários — só atenção real.' },
+              { icon: '🎁', title: 'Presente Memorável', desc: 'Uma peça personalizada que ninguém joga fora. Dura e encanta.' },
+            ].map((d) => (
+              <div className="differential-item" key={d.title}>
+                <span className="differential-icon">{d.icon}</span>
+                <h3>{d.title}</h3>
+                <p>{d.desc}</p>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Social proof strip */}
-      <section className="trust-strip">
-        <div className="container trust-strip__inner">
-          <div className="trust-strip__item">
-            <span className="trust-strip__number">200+</span>
-            <span className="trust-strip__label">Peças entregues</span>
-          </div>
-          <div className="trust-strip__divider" />
-          <div className="trust-strip__item">
-            <span className="trust-strip__number">98%</span>
-            <span className="trust-strip__label">Clientes satisfeitos</span>
-          </div>
-          <div className="trust-strip__divider" />
-          <div className="trust-strip__item">
-            <span className="trust-strip__number">5★</span>
-            <span className="trust-strip__label">Avaliação média</span>
-          </div>
-          <div className="trust-strip__divider" />
-          <div className="trust-strip__item">
-            <span className="trust-strip__number">100%</span>
-            <span className="trust-strip__label">Artesanal</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured products */}
+      {/* ── PRODUTOS DESTAQUE ── */}
       <section className="section">
         <div className="container">
-          <div className="section-header">
+          <div className="section__header">
             <div>
-              <span className="section-label">Peças em destaque</span>
-              <h2 className="section-title">Criações que encantam</h2>
+              <p className="section__eyebrow">Nossas criações</p>
+              <h2 className="section__title">Peças em <em>destaque</em></h2>
             </div>
-            <Link to="/produtos" className="btn btn-outline">
-              Ver todos <ArrowRight size={16} />
+            <Link to="/products" className="btn btn-outline">
+              Ver tudo <ArrowRight size={15} />
             </Link>
           </div>
+
           {loading ? (
-            <div className="spinner" />
+            <div className="products-skeleton">
+              {Array(4).fill(0).map((_, i) => <div className="skeleton-card" key={i} />)}
+            </div>
           ) : (
             <div className="products-grid">
               {featured.map((p) => <ProductCard key={p.id} product={p} />)}
@@ -133,159 +100,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About / Story */}
-      <section className="about-section">
-        <div className="container about-section__inner">
-          <div className="about-section__img-col">
-            <div className="about-section__img-stack">
-              <img
-                src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=500"
-                alt="Processo artesanal"
-                className="about-section__img about-section__img--main"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1463936575829-25148e1db1b8?w=300"
-                alt="Detalhe artesanato"
-                className="about-section__img about-section__img--accent"
-              />
-            </div>
-          </div>
-          <div className="about-section__content">
-            <span className="section-label">Nossa história</span>
-            <h2>Artesanato nascido <em>da paixão.</em></h2>
-            <p>
-              A Artelli nasceu da vontade de transformar espaços com beleza feita por mãos humanas.
-              Cada terrário plantado, cada oratório entalhado, cada peça criada carrega a intenção
-              de quem ama o que faz.
-            </p>
-            <p>
-              Não trabalhamos com estoque pronto. Trabalhamos com a sua ideia — e a transformamos
-              em algo que vai ter lugar especial na sua casa.
-            </p>
-            <div className="about-section__values">
-              <div className="about-section__value">
-                <Heart size={20} className="about-section__value-icon" />
-                <div>
-                  <strong>Feito com amor</strong>
-                  <span>Cada peça recebe atenção individual do início ao acabamento</span>
-                </div>
-              </div>
-              <div className="about-section__value">
-                <Leaf size={20} className="about-section__value-icon" />
-                <div>
-                  <strong>Materiais naturais</strong>
-                  <span>Madeiras, plantas e pedras selecionadas com critério</span>
-                </div>
-              </div>
-              <div className="about-section__value">
-                <Package size={20} className="about-section__value-icon" />
-                <div>
-                  <strong>Embalagem especial</strong>
-                  <span>Cada entrega é cuidadosamente embalada para proteger e surpreender</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits */}
-      <section className="section benefits-section">
-        <div className="container">
-          <div className="section-header centered">
-            <span className="section-label">Por que Artelli</span>
-            <h2 className="section-title">O que torna cada peça especial</h2>
-          </div>
-          <div className="benefits-grid">
-            {[
-              { icon: '🌿', title: 'Personalização real', desc: 'Não há dois iguais. Sua peça é criada do zero com base no que você imagina.' },
-              { icon: '🤝', title: 'Atendimento próximo', desc: 'Conversamos pelo WhatsApp do início ao fim. Você acompanha cada etapa da criação.' },
-              { icon: '📦', title: 'Envio seguro', desc: 'Embalagem reforçada e rastreamento em tempo real. Sua encomenda chega íntegra.' },
-              { icon: '💚', title: 'Sustentável', desc: 'Priorizamos materiais naturais, biodegradáveis e de procedência responsável.' },
-              { icon: '⏱️', title: 'Prazos claros', desc: 'Informamos o prazo de produção antes de iniciar. Sem surpresas desagradáveis.' },
-              { icon: '🎁', title: 'Perfeito para presentes', desc: 'Adicione dedicatória personalizada e embalagem de presente sem custo extra.' },
-            ].map((b) => (
-              <div key={b.title} className="benefit-card">
-                <span className="benefit-card__icon">{b.icon}</span>
-                <h4>{b.title}</h4>
-                <p>{b.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="testimonials-section">
-        <div className="container">
-          <div className="section-header centered">
-            <span className="section-label">Depoimentos</span>
-            <h2 className="section-title">Quem já tem Artelli em casa</h2>
-          </div>
-          <div className="testimonials-grid">
-            {[
-              { name: 'Mariana S.', city: 'São Paulo, SP', rating: 5, text: 'Encomendei um terrário personalizado e superou todas as expectativas. A atenção aos detalhes é impressionante. Já indiquei para cinco amigas!' },
-              { name: 'Lucas R.', city: 'Curitiba, PR', rating: 5, text: 'Comprei um oratório para minha mãe de aniversário. Ela ficou emocionada. A qualidade da peça e o acabamento são dignos de loja de luxo.' },
-              { name: 'Camila F.', city: 'Rio de Janeiro, RJ', rating: 5, text: 'Muito fofo tudo que ela faz. Tudo muito bem feito e com muito carinho. Amei!' },
-            ].map((t) => (
-              <div key={t.name} className="testimonial-card">
-                <div className="testimonial-card__stars">
-                  {Array.from({ length: t.rating }).map((_, i) => (
-                    <Star key={i} size={14} fill="currentColor" />
-                  ))}
-                </div>
-                <p className="testimonial-card__text">"{t.text}"</p>
-                <div className="testimonial-card__author">
-                  <div className="testimonial-card__avatar">
-                    {t.name.charAt(0)}
-                  </div>
-                  <div>
-                    <strong>{t.name}</strong>
-                    <span>{t.city}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Banner */}
+      {/* ── CTA WHATSAPP ── */}
       <section className="cta-banner">
         <div className="container cta-banner__inner">
           <div>
-            <h2>Sua encomenda começa<br /><em>com uma mensagem.</em></h2>
-            <p>Descreva o que você imagina. Nós transformamos em realidade.</p>
+            <h2>Quer algo <em>único para você?</em></h2>
+            <p>Encomende sua peça personalizada diretamente pelo WhatsApp. Rápido, simples e sem burocracia.</p>
           </div>
           <a
-            href="https://wa.me/5511992216409?text=Olá,%20Artelli!%20Gostaria%20de%20fazer%20uma%20encomenda%20personalizada."
-            target="_blank"
-            rel="noopener"
-            className="btn btn-sand btn-lg"
+            href="https://wa.me/5511999999999?text=Olá%2C+Artelli!+Gostaria+de+fazer+uma+encomenda+personalizada."
+            target="_blank" rel="noopener"
+            className="btn btn-sand"
           >
-            Conversar no WhatsApp <ArrowRight size={18} />
+            <MessageCircle size={18} /> Encomendar agora
           </a>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="section">
-        <div className="container faq-container">
-          <div className="section-header centered">
-            <span className="section-label">Dúvidas frequentes</span>
-            <h2 className="section-title">Tudo que você precisa saber</h2>
-          </div>
-          <div className="faq-list">
-            {faqs.map((faq, i) => (
-              <div key={i} className={`faq-item ${openFaq === i ? 'open' : ''}`}>
-                <button className="faq-item__q" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
-                  {faq.q}
-                  <ChevronDown size={18} className="faq-item__chevron" />
-                </button>
-                {openFaq === i && <p className="faq-item__a">{faq.a}</p>}
-              </div>
-            ))}
-          </div>
         </div>
       </section>
     </main>

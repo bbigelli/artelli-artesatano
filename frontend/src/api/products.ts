@@ -12,7 +12,7 @@ export const productService = {
     return res.data;
   },
 
-  async get(id: number) {
+  async getById(id: number) {
     const res = await api.get<Product>(`/products/${id}`);
     return res.data;
   },
@@ -22,7 +22,13 @@ export const productService = {
     return res.data;
   },
 
-  async adminListAll() {
+  async categories() {
+    const res = await api.get<Category[]>('/products/categories');
+    return res.data;
+  },
+
+  // Admin
+  async adminList() {
     const res = await api.get<ProductList[]>('/products/admin/all');
     return res.data;
   },
@@ -39,20 +45,5 @@ export const productService = {
 
   async remove(id: number) {
     await api.delete(`/products/${id}`);
-  },
-
-  // Categories
-  async getCategories() {
-    const res = await api.get<Category[]>('/products/categories');
-    return res.data;
-  },
-
-  async createCategory(data: { name: string; slug: string; description?: string }) {
-    const res = await api.post<Category>('/products/categories', data);
-    return res.data;
-  },
-
-  async deleteCategory(id: number) {
-    await api.delete(`/products/categories/${id}`);
   },
 };

@@ -1,13 +1,11 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Clock, Sparkles } from 'lucide-react';
+import { ShoppingCart, Star, Clock } from 'lucide-react';
 import { ProductList } from '../types';
 import { useCart } from '../contexts/CartContext';
 import toast from 'react-hot-toast';
 import './ProductCard.css';
 
-interface Props {
-  product: ProductList;
-}
+interface Props { product: ProductList; }
 
 export default function ProductCard({ product }: Props) {
   const { addItem } = useCart();
@@ -15,31 +13,27 @@ export default function ProductCard({ product }: Props) {
   function handleAdd(e: React.MouseEvent) {
     e.preventDefault();
     addItem(product);
-    toast.success(`${product.name} adicionado ao carrinho!`, {
-      icon: '🌿',
-      style: { fontFamily: 'var(--font-body)', fontSize: '0.88rem' },
-    });
+    toast.success(`${product.name} adicionado ao carrinho!`, { icon: '🌿' });
   }
 
   const discount = product.original_price
-    ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
+    ? Math.round((1 - product.price / product.original_price) * 100)
     : null;
 
   return (
-    <Link to={`/produtos/${product.slug}`} className="product-card">
-      <div className="product-card__img-wrap">
-        <img
-          src={product.image_url || '/Logo.png'}
-          alt={product.name}
-          loading="lazy"
-          onError={(e) => { (e.target as HTMLImageElement).src = '/Logo.png'; }}
-        />
-        {product.is_featured && (
-          <span className="product-card__featured">
-            <Sparkles size={11} /> Destaque
-          </span>
+    <Link to={`/products/${product.slug}`} className="product-card">
+      <div className="product-card__img-wrapper">
+        {product.image_url ? (
+          <img src={product.image_url} alt={product.name} className="product-card__img" loading="lazy" />
+        ) : (
+          <div className="product-card__img-placeholder">🌿</div>
         )}
-        {discount && <span className="product-card__discount">−{discount}%</span>}
+        {discount && discount > 0 && (
+          <span className="product-card__discount">-{discount}%</span>
+        )}
+        {product.is_featured && (
+          <span className="product-card__featured"><Star size={11} fill="currentColor" /> Destaque</span>
+        )}
       </div>
 
       <div className="product-card__body">
@@ -50,29 +44,23 @@ export default function ProductCard({ product }: Props) {
         {product.short_description && (
           <p className="product-card__desc">{product.short_description}</p>
         )}
-
         <div className="product-card__meta">
           {product.is_customizable && (
-            <span className="product-card__tag">Personalizável</span>
+            <span className="product-card__tag">✏️ Personalizável</span>
           )}
           <span className="product-card__tag">
-            <Clock size={11} /> {product.production_days} dias
+            <Clock size={11} /> {product.production_days}d
           </span>
         </div>
-
         <div className="product-card__footer">
-          <div className="product-card__price">
+          <div className="product-card__pricing">
             {product.original_price && (
-              <span className="product-card__original">
-                R$ {product.original_price.toFixed(2).replace('.', ',')}
-              </span>
+              <span className="product-card__original">R$ {product.original_price.toFixed(2)}</span>
             )}
-            <span className="product-card__current">
-              R$ {product.price.toFixed(2).replace('.', ',')}
-            </span>
+            <span className="product-card__price">R$ {product.price.toFixed(2)}</span>
           </div>
-          <button className="product-card__btn" onClick={handleAdd}>
-            <ShoppingBag size={15} />
+          <button className="product-card__cart-btn" onClick={handleAdd} aria-label="Adicionar ao carrinho">
+            <ShoppingCart size={16} />
           </button>
         </div>
       </div>

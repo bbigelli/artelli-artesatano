@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, UserCreate } from '../types';
+import { User } from '../types';
 import { authService } from '../api/auth';
 
 interface AuthContextType {
@@ -8,7 +8,6 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   login: (username: string, password: string) => Promise<void>;
-  register: (data: UserCreate) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -16,55 +15,51 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const stored = localStorage.getItem('artelli_user');
-    return stored ? JSON.parse(stored) : null;
-  });
-  const [token, setToken] = useState<string | null>(
-    () => localStorage.getItem('artelli_token')
-  );
-
-  const isAuthenticated = !!token && !!user;
-  const isAdmin = user?.is_admin ?? false;
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('artelli_token'));
 
   useEffect(() => {
-    if (token && !user) refreshUser();
+    if (token) loadUser();
   }, []);
 
-  async function login(username: string, password: string) {
-    const data = await authService.login(username, password);
-    localStorage.setItem('artelli_token', data.access_token);
-    setToken(data.access_token);
-    const me = await authService.getMe();
-    localStorage.setItem('artelli_user', JSON.stringify(me));
-    setUser(me);
-  }
-
-  async function register(data: UserCreate) {
-    await authService.register(data);
-    await login(data.username, data.password);
-  }
-
-  function logout() {
-    localStorage.removeItem('artelli_token');
-    localStorage.removeItem('artelli_user');
-    setToken(null);
-    setUser(null);
-  }
-
-  async function refreshUser() {
+  async function loadUser() {
     try {
       const me = await authService.getMe();
-      localStorage.setItem('artelli_user', JSON.stringify(me));
       setUser(me);
     } catch {
       logout();
     }
   }
 
+  async function login(username: string, password: string) {
+    const data = await authService.login(username, password);
+    localStorage.setItem('artelli_token', data.access_token);
+    setToken(data.access_token);
+    const me = await authService.getMe();
+    setUser(me);
+  }
+
+  function logout() {
+    localStorage.removeItem('artelli_token');
+    setToken(null);
+    setUser(null);
+  }
+
+  async function refreshUser() {
+    await loadUser();
+  }
+
   return (
     <AuthContext.Provider
-      value={{ user, token, isAuthenticated, isAdmin, login, register, logout, refreshUser }}
+      value={{
+        user,
+        token,
+        isAuthenticated: !!token && !!user,
+        isAdmin: !!user?.is_admin,
+        login,
+        logout,
+        refreshUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

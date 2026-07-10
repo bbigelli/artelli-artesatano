@@ -1,120 +1,75 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag, MessageCircle, ArrowLeft } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, MessageCircle } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import api from '../api/client';
+import { useEffect, useState } from 'react';
 import './Cart.css';
 
 export default function Cart() {
-  const { items, totalItems, totalPrice, removeItem, updateQuantity, clearCart, checkoutWhatsApp } = useCart();
-  // FIX: usa VITE_WHATSAPP_NUMBER baked no build como fallback;
-  // busca o número via axios (que usa a baseURL correta com VITE_API_URL)
-  const [whatsapp, setWhatsapp] = useState(
-    import.meta.env.VITE_WHATSAPP_NUMBER || '5511992216409'
-  );
+  const { items, removeItem, updateQuantity, clearCart, totalPrice, checkoutWhatsApp } = useCart();
+  const [waNumber, setWaNumber] = useState('5511999999999');
 
   useEffect(() => {
-    // FIX: era fetch('/api/config/whatsapp') — URL relativa não funciona no Render
-    // pois nginx não tem proxy para /api. Agora usa o cliente axios configurado.
     api.get<{ number: string }>('/config/whatsapp')
-      .then((res) => setWhatsapp(res.data.number))
-      .catch(() => {/* mantém o fallback */});
+      .then((r) => setWaNumber(r.data.number))
+      .catch(() => {});
   }, []);
 
-  if (items.length === 0) {
-    return (
-      <main className="cart-page">
-        <div className="container cart-empty">
-          <ShoppingBag size={56} className="cart-empty__icon" />
-          <h2>Seu carrinho está vazio</h2>
-          <p>Explore nossas peças únicas e adicione o que encantar você.</p>
-          <Link to="/produtos" className="btn btn-primary btn-lg">
-            <ArrowLeft size={18} /> Explorar produtos
-          </Link>
-        </div>
-      </main>
-    );
-  }
+  if (items.length === 0) return (
+    <main className="cart-empty">
+      <ShoppingBag size={64} strokeWidth={1} />
+      <h2>Seu carrinho está vazio</h2>
+      <p>Explore nossas peças e encontre algo especial.</p>
+      <Link to="/products" className="btn btn-primary">Ver catálogo</Link>
+    </main>
+  );
 
   return (
     <main className="cart-page">
       <div className="container">
-        <div className="cart-page__header">
-          <h1>Meu carrinho</h1>
-          <button className="btn btn-outline btn-sm" onClick={clearCart}>
-            <Trash2 size={14} /> Limpar tudo
-          </button>
-        </div>
+        <h1 className="cart-title">Seu <em>carrinho</em></h1>
 
-        <div className="cart-page__layout">
+        <div className="cart-layout">
           <div className="cart-items">
-            {items.map((item) => (
-              <div key={item.product.id} className="cart-item">
+            {items.map(({ product, quantity, customization }) => (
+              <div className="cart-item" key={product.id}>
                 <div className="cart-item__img">
-                  <img
-                    src={item.product.image_url || '/Logo.png'}
-                    alt={item.product.name}
-                    onError={(e) => { (e.target as HTMLImageElement).src = '/Logo.png'; }}
-                  />
+                  {product.image_url
+                    ? <img src={product.image_url} alt={product.name} />
+                    : <span>🌿</span>
+                  }
                 </div>
                 <div className="cart-item__info">
-                  <span className="cart-item__category">{item.product.category?.name}</span>
-                  <h3 className="cart-item__name">{item.product.name}</h3>
-                  {item.customization && (
-                    <p className="cart-item__custom">✏️ {item.customization}</p>
-                  )}
-                  <span className="cart-item__price">
-                    R$ {item.product.price.toFixed(2).replace('.', ',')}
-                  </span>
-                </div>
-                <div className="cart-item__controls">
+                  <h3>{product.name}</h3>
+                  {product.category && <span className="cart-item__cat">{product.category.name}</span>}
+                  {customization && <p className="cart-item__custom">✏️ {customization}</p>}
                   <div className="cart-item__qty">
-                    <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)}>
-                      <Minus size={14} />
-                    </button>
-                    <span>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)}>
-                      <Plus size={14} />
-                    </button>
+                    <button onClick={() => updateQuantity(product.id, quantity - 1)}><Minus size={14} /></button>
+                    <span>{quantity}</span>
+                    <button onClick={() => updateQuantity(product.id, quantity + 1)}><Plus size={14} /></button>
                   </div>
-                  <span className="cart-item__subtotal">
-                    R$ {(item.product.price * item.quantity).toFixed(2).replace('.', ',')}
-                  </span>
-                  <button className="cart-item__remove" onClick={() => removeItem(item.product.id)}>
-                    <Trash2 size={16} />
-                  </button>
+                </div>
+                <div className="cart-item__right">
+                  <span className="cart-item__price">R$ {(product.price * quantity).toFixed(2)}</span>
+                  <button className="cart-item__remove" onClick={() => removeItem(product.id)}><Trash2 size={16} /></button>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="cart-summary">
-            <h3>Resumo do pedido</h3>
+            <h3>Resumo</h3>
             <div className="cart-summary__row">
-              <span>{totalItems} ite{totalItems !== 1 ? 'ns' : 'm'}</span>
-              <span>R$ {totalPrice.toFixed(2).replace('.', ',')}</span>
+              <span>{items.reduce((a, i) => a + i.quantity, 0)} itens</span>
+              <span>R$ {totalPrice.toFixed(2)}</span>
             </div>
-            <div className="cart-summary__row">
-              <span>Frete</span>
-              <span className="cart-summary__shipping">A combinar</span>
+            <div className="cart-summary__note">
+              🌿 O preço final é confirmado via WhatsApp com prazo e frete.
             </div>
-            <hr className="divider" />
-            <div className="cart-summary__total">
-              <span>Estimativa</span>
-              <strong>R$ {totalPrice.toFixed(2).replace('.', ',')}</strong>
-            </div>
-            <button
-              className="btn btn-primary btn-lg cart-summary__checkout"
-              onClick={() => checkoutWhatsApp(whatsapp)}
-            >
-              <MessageCircle size={18} /> Finalizar via WhatsApp
+            <button className="btn btn-sand cart-summary__cta" onClick={() => checkoutWhatsApp(waNumber)}>
+              <MessageCircle size={18} /> Finalizar pelo WhatsApp
             </button>
-            <p className="cart-summary__note">
-              Você será redirecionado ao WhatsApp com todos os detalhes do pedido já formatados.
-            </p>
-            <Link to="/produtos" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }}>
-              <ArrowLeft size={16} /> Continuar comprando
-            </Link>
+            <button className="cart-clear" onClick={clearCart}>Limpar carrinho</button>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ShoppingBag, Clock, Sparkles, ArrowLeft, MessageCircle } from 'lucide-react';
+import { ShoppingCart, MessageCircle, Clock, ArrowLeft, CheckCircle } from 'lucide-react';
 import { productService } from '../api/products';
 import { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
@@ -11,80 +11,67 @@ export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [customization, setCustomization] = useState('');
   const [activeImg, setActiveImg] = useState(0);
+  const [customization, setCustomization] = useState('');
   const { addItem } = useCart();
 
   useEffect(() => {
     if (!slug) return;
-    productService.getBySlug(slug).then(setProduct).finally(() => setLoading(false));
+    setLoading(true);
+    productService.getBySlug(slug)
+      .then(setProduct)
+      .catch(() => setProduct(null))
+      .finally(() => setLoading(false));
   }, [slug]);
 
-  if (loading) return <div className="spinner" />;
+  if (loading) return <div className="detail-loading"><div className="spinner" /></div>;
   if (!product) return (
-    <div className="container" style={{ padding: '80px 24px', textAlign: 'center' }}>
+    <div className="detail-not-found">
       <h2>Produto não encontrado</h2>
-      <Link to="/produtos" className="btn btn-outline" style={{ marginTop: 16 }}>
-        <ArrowLeft size={16} /> Voltar ao catálogo
-      </Link>
+      <Link to="/products" className="btn btn-primary">Ver catálogo</Link>
     </div>
   );
 
   const images = [product.image_url, product.image_url_2, product.image_url_3].filter(Boolean) as string[];
-  const activeImage = images[activeImg] || '/Logo.png';
+  const discount = product.original_price ? Math.round((1 - product.price / product.original_price) * 100) : null;
 
-  function handleAddToCart() {
-    addItem(
-      {
-        id: product!.id,
-        name: product!.name,
-        slug: product!.slug,
-        short_description: product!.short_description,
-        price: product!.price,
-        original_price: product!.original_price,
-        image_url: product!.image_url,
-        is_featured: product!.is_featured,
-        is_active: product!.is_active,
-        is_customizable: product!.is_customizable,
-        production_days: product!.production_days,
-        category: product!.category,
-      },
-      customization || undefined
-    );
-    toast.success('Adicionado ao carrinho!', { icon: '🌿' });
+  function handleAdd() {
+    addItem(product!, customization || undefined);
+    toast.success('Adicionado ao carrinho! 🌿');
   }
 
-  const waMessage = encodeURIComponent(
-    `Olá, Artelli! 🌿 Tenho interesse no produto:\n\n*${product.name}*\nPreço: R$ ${product.price.toFixed(2)}\n${customization ? `\nPersonalização: ${customization}` : ''}\n\nPoderia me dar mais informações?`
-  );
+  function handleWhatsApp() {
+    const msg = encodeURIComponent(
+      `Olá, Artelli! 🌿 Tenho interesse no produto:\n*${product!.name}*\nR$ ${product!.price.toFixed(2)}`
+      + (customization ? `\n\nPersonalização desejada: ${customization}` : '')
+    );
+    window.open(`https://wa.me/5511999999999?text=${msg}`, '_blank');
+  }
 
   return (
     <main className="product-detail">
       <div className="container">
-        <Link to="/produtos" className="product-detail__back">
-          <ArrowLeft size={16} /> Voltar ao catálogo
-        </Link>
+        <Link to="/products" className="detail-back"><ArrowLeft size={16} /> Voltar ao catálogo</Link>
 
-        <div className="product-detail__layout">
-          {/* Gallery */}
-          <div className="product-detail__gallery">
-            <div className="product-detail__main-img">
-              <img src={activeImage} alt={product.name} onError={(e) => { (e.target as HTMLImageElement).src = '/Logo.png'; }} />
-              {product.is_featured && (
-                <span className="product-card__featured">
-                  <Sparkles size={11} /> Destaque
-                </span>
-              )}
+        <div className="detail-grid">
+          {/* Galeria */}
+          <div className="detail-gallery">
+            <div className="detail-gallery__main">
+              {images[activeImg]
+                ? <img src={images[activeImg]} alt={product.name} />
+                : <div className="detail-gallery__placeholder">🌿</div>
+              }
+              {discount && <span className="detail-discount">-{discount}%</span>}
             </div>
             {images.length > 1 && (
-              <div className="product-detail__thumbs">
+              <div className="detail-gallery__thumbs">
                 {images.map((img, i) => (
                   <button
                     key={i}
-                    className={`product-detail__thumb ${i === activeImg ? 'active' : ''}`}
+                    className={`detail-thumb ${i === activeImg ? 'detail-thumb--active' : ''}`}
                     onClick={() => setActiveImg(i)}
                   >
-                    <img src={img} alt={`Imagem ${i + 1}`} />
+                    <img src={img} alt={`${product.name} ${i + 1}`} />
                   </button>
                 ))}
               </div>
@@ -92,69 +79,55 @@ export default function ProductDetail() {
           </div>
 
           {/* Info */}
-          <div className="product-detail__info">
-            {product.category && (
-              <span className="product-detail__cat">{product.category.name}</span>
-            )}
-            <h1 className="product-detail__name">{product.name}</h1>
+          <div className="detail-info">
+            {product.category && <span className="detail-category">{product.category.name}</span>}
+            <h1 className="detail-name">{product.name}</h1>
 
-            <div className="product-detail__price">
+            <div className="detail-pricing">
               {product.original_price && (
-                <span className="product-detail__original">
-                  R$ {product.original_price.toFixed(2).replace('.', ',')}
-                </span>
+                <span className="detail-original">R$ {product.original_price.toFixed(2)}</span>
               )}
-              <span className="product-detail__current">
-                R$ {product.price.toFixed(2).replace('.', ',')}
-              </span>
+              <span className="detail-price">R$ {product.price.toFixed(2)}</span>
             </div>
 
-            {product.description && (
-              <p className="product-detail__desc">{product.description}</p>
+            {product.short_description && (
+              <p className="detail-short-desc">{product.short_description}</p>
             )}
 
-            <div className="product-detail__tags">
-              <span className="tag">
-                <Clock size={12} /> {product.production_days} dias de produção
-              </span>
-              {product.is_customizable && (
-                <span className="tag">✏️ Personalizável</span>
-              )}
-              <span className="tag">📦 Entrega para todo Brasil(EXETO TERRÁRIOS)</span>
+            <div className="detail-badges">
+              <span className="detail-badge"><Clock size={13} /> {product.production_days} dias úteis</span>
+              {product.is_customizable && <span className="detail-badge detail-badge--sand">✏️ Personalizável</span>}
+              <span className="detail-badge"><CheckCircle size={13} /> Feito à mão</span>
             </div>
 
             {product.is_customizable && (
-              <div className="form-group">
-                <label className="form-label">Personalização (opcional)</label>
+              <div className="detail-custom">
+                <label className="detail-custom__label">Personalização (opcional)</label>
                 <textarea
-                  className="form-input"
-                  style={{ minHeight: 100, resize: 'vertical' }}
-                  placeholder="Ex: Cores preferidas, plantas desejadas, mensagem especial, tamanho..."
+                  className="detail-custom__input"
+                  placeholder="Descreva a personalização que você deseja..."
                   value={customization}
                   onChange={(e) => setCustomization(e.target.value)}
+                  rows={3}
                 />
               </div>
             )}
 
-            <div className="product-detail__actions">
-              <button className="btn btn-primary btn-lg" onClick={handleAddToCart} style={{ flex: 1 }}>
-                <ShoppingBag size={18} /> Adicionar ao carrinho
+            <div className="detail-actions">
+              <button className="btn btn-primary" onClick={handleAdd}>
+                <ShoppingCart size={17} /> Adicionar ao carrinho
               </button>
-              <a
-                href={`whatsapp://send?phone=5511992216409&text=${waMessage}`}
-                target="_blank"
-                rel="noopener"
-                className="btn btn-outline btn-lg"
-              >
-                <MessageCircle size={18} /> WhatsApp
-              </a>
+              <button className="btn btn-outline" onClick={handleWhatsApp}>
+                <MessageCircle size={17} /> Pedir pelo WhatsApp
+              </button>
             </div>
 
-            <div className="product-detail__guarantee">
-              <span>🌿 Peça artesanal feita exclusivamente para você</span>
-              <span>💚 Materiais naturais e sustentáveis</span>
-              <span>🎁 Embalagem especial incluída</span>
-            </div>
+            {product.description && (
+              <div className="detail-description">
+                <h3>Sobre esta peça</h3>
+                <p>{product.description}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

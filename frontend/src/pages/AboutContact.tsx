@@ -1,41 +1,38 @@
-import { MessageCircle, MapPin, Clock, Heart, Leaf, Award } from 'lucide-react';
+import { MessageCircle, Instagram, Mail, MapPin, Clock, Leaf } from 'lucide-react';
 import './AboutContact.css';
 
-export function About() {
+export default function AboutContact() {
   return (
     <main className="about-page">
+
       {/* Hero */}
       <section className="about-hero">
         <div className="container about-hero__inner">
-          <div>
-            <span className="section-label">Nossa história</span>
-            <h1>Feito à mão,<br /><em>com propósito.</em></h1>
+          <div className="about-hero__text">
+            <p className="section__eyebrow">Nossa história</p>
+            <h1>Arte que nasce<br /><em>do coração.</em></h1>
             <p>
-              A Artelli nasceu de um sonho simples: criar peças que transformem ambientes
-              e toquem as pessoas. Não por serem bonitas — mas por serem únicas,
-              intencionais e feitas com cuidado real.
+              A Artelli nasceu da crença de que um ambiente bem decorado tem o poder de
+              transformar como você sente e vive cada espaço. Não somos uma fábrica.
+              Somos artesãos.
             </p>
           </div>
-          <div className="about-hero__img">
-            <img src="https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=600" alt="Artesanato Artelli" />
+          <div className="about-hero__visual">
+            <img src="/oratorio_argamassa.png" alt="Oratório Artelli" />
           </div>
         </div>
       </section>
 
-      {/* Values */}
-      <section className="section">
+      {/* Valores */}
+      <section className="section about-values">
         <div className="container">
-          <div className="section-header centered">
-            <span className="section-label">Nossos valores</span>
-            <h2 className="section-title">O que guia cada peça que criamos</h2>
-          </div>
-          <div className="about-values">
+          <div className="about-values__grid">
             {[
-              { icon: <Heart size={28} />, title: 'Amor pelo ofício', desc: 'Cada entalhe, cada planta é feito com atenção e intenção. Não produzimos em escala — produzimos com alma.' },
-              { icon: <Leaf size={28} />, title: 'Respeito à natureza', desc: 'Usamos madeiras de reflorestamento, plantas nativas e materiais naturais. Beleza que não cobra da terra mais do que ela pode dar.' },
-              { icon: <Award size={28} />, title: 'Excelência artesanal', desc: 'Cada peça passa por inspeção cuidadosa antes de ser embalada. Se não está no nosso padrão, não sai daqui.' },
+              { icon: <Leaf size={28} />, title: 'Feito à Mão', desc: 'Cada peça é criada manualmente, com materiais selecionados e técnicas artesanais refinadas.' },
+              { icon: '✦', title: 'Exclusividade', desc: 'Nenhuma peça é idêntica à outra. Você recebe algo que não existia antes.' },
+              { icon: '🤍', title: 'Com Amor', desc: 'Fazemos isso por paixão. Esse cuidado aparece em cada detalhe do produto final.' },
             ].map((v) => (
-              <div key={v.title} className="about-value-card">
+              <div className="about-value-card" key={v.title}>
                 <div className="about-value-card__icon">{v.icon}</div>
                 <h3>{v.title}</h3>
                 <p>{v.desc}</p>
@@ -45,97 +42,97 @@ export function About() {
         </div>
       </section>
 
-      {/* Timeline */}
-      <section className="section" style={{ background: 'var(--cream-200)', padding: '80px 0' }}>
+      {/* Como Funciona */}
+      <section className="section about-process">
         <div className="container">
-          <div className="section-header centered">
-            <span className="section-label">Trajetória</span>
-            <h2 className="section-title">Do primeiro terrário até hoje</h2>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <p className="section__eyebrow">Processo simplificado</p>
+            <h2 className="section__title">Da ideia à sua <em>casa</em></h2>
           </div>
-          <div className="timeline">
+          <div className="process-steps">
             {[
-              { year: '2019', title: 'O primeiro terrário', desc: 'Tudo começou com um pote de vidro, um punhado de terra e uma suculenta. O resultado encantou quem viu — e não parou mais.' },
-              { year: '2021', title: 'Primeiras encomendas', desc: 'Amigos, depois amigos de amigos. A palavra foi passando e as encomendas chegando. Cada pedido, uma nova história.' },
-              { year: '2023', title: 'Expansão do catálogo', desc: 'Terrários, oratórios, vasos de cimento... A Artelli cresceu respeitando sua essência: feito à mão, com amor.' },
-              { year: '2026', title: 'Para todo o Brasil', desc: 'Hoje as peças Artelli chegam a todos os estados. A mesma qualidade, a mesma atenção, independente de onde você esteja.' },
-            ].map((t, i) => (
-              <div key={i} className="timeline-item">
-                <div className="timeline-item__year">{t.year}</div>
-                <div className="timeline-item__content">
-                  <h4>{t.title}</h4>
-                  <p>{t.desc}</p>
-                </div>
+              { n: '1', title: 'Fale Conosco', desc: 'Nos chame no WhatsApp e conte o que você imagina. Sem formulários complicados.' },
+              { n: '2', title: 'Criamos Juntos', desc: 'Definimos materiais, tamanho e estilo. Você aprova cada detalhe antes da produção.' },
+              { n: '3', title: 'Produção', desc: 'Sua peça é criada com cuidado, no tempo certo. Qualidade que não pode ser apressada.' },
+              { n: '4', title: 'Entrega', desc: 'Embalagem especial e entrega combinada. Sua peça chega pronta para encantar.' },
+            ].map((s) => (
+              <div className="process-step" key={s.n}>
+                <div className="process-step__num">{s.n}</div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
-    </main>
-  );
-}
 
-export function Contact() {
-  return (
-    <main className="contact-page">
-      <div className="container">
-        <div className="contact-header">
-          <span className="section-label">Fale conosco</span>
-          <h1>Vamos conversar?</h1>
-          <p>O WhatsApp é nossa principal forma de comunicação. Respondemos rapidinho.</p>
-        </div>
-
-        <div className="contact-layout">
-          <div className="contact-info">
-            <div className="contact-info-card">
-              <div className="contact-info-item">
-                <MessageCircle size={22} className="contact-info-icon" />
-                <div>
-                  <strong>WhatsApp</strong>
-                  <span>Seg–Sex, 9h às 18h</span>
-                  <a
-                    href="https://wa.me/5511992216409?text=Olá,%20Artelli!%20Gostaria%20de%20saber%20mais%20sobre%20as%20peças."
-                    target="_blank"
-                    rel="noopener"
-                    className="btn btn-primary"
-                    style={{ marginTop: 12 }}
-                  >
-                    <MessageCircle size={16} /> Iniciar conversa
-                  </a>
+      {/* Contato */}
+      <section className="section about-contact" id="contato">
+        <div className="container">
+          <div className="about-contact__grid">
+            <div>
+              <p className="section__eyebrow">Entre em contato</p>
+              <h2 className="section__title">Vamos criar algo <em>único juntos.</em></h2>
+              <p className="about-contact__desc">
+                A forma mais rápida de fazer uma encomenda ou tirar dúvidas é pelo WhatsApp.
+                Respondemos em até 24 horas.
+              </p>
+              <div className="contact-links">
+                <a href="https://wa.me/5511999999999" target="_blank" rel="noopener" className="contact-link contact-link--wa">
+                  <MessageCircle size={20} />
+                  <div>
+                    <strong>WhatsApp</strong>
+                    <span>(11) 99999-9999</span>
+                  </div>
+                </a>
+                <a href="https://instagram.com/artelliartesanato" target="_blank" rel="noopener" className="contact-link">
+                  <Instagram size={20} />
+                  <div>
+                    <strong>Instagram</strong>
+                    <span>@artelliartesanato</span>
+                  </div>
+                </a>
+                <a href="mailto:contato@artelli.com.br" className="contact-link">
+                  <Mail size={20} />
+                  <div>
+                    <strong>E-mail</strong>
+                    <span>contato@artelli.com.br</span>
+                  </div>
+                </a>
+                <div className="contact-link">
+                  <MapPin size={20} />
+                  <div>
+                    <strong>Localização</strong>
+                    <span>São Paulo, SP</span>
+                  </div>
                 </div>
-              </div>
-              <hr className="divider" />
-              <div className="contact-info-item">
-                <MapPin size={22} className="contact-info-icon" />
-                <div>
-                  <strong>Localização</strong>
-                  <span>São Paulo, SP — Brasil</span>
-                </div>
-              </div>
-              <hr className="divider" />
-              <div className="contact-info-item">
-                <Clock size={22} className="contact-info-icon" />
-                <div>
-                  <strong>Horário de atendimento</strong>
-                  <span>Segunda a Sexta</span>
-                  <span>9h às 18h</span>
+                <div className="contact-link">
+                  <Clock size={20} />
+                  <div>
+                    <strong>Horário</strong>
+                    <span>Seg–Sáb, 9h–18h</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="contact-faq">
-            <h3>Antes de entrar em contato</h3>
-            <p>Confira se sua dúvida está entre as mais comuns:</p>
-            <ul className="contact-faq-list">
-              <li>✅ Fazemos entregas para todo o Brasil (exeto terrários)</li>
-              <li>✅ Todas as peças são 100% personalizáveis</li>
-              <li>✅ Prazo de produção: 5 a 10 dias úteis</li>
-              <li>✅ Embalagem especial incluída sem custo extra</li>
-              <li>✅ Aceitamos Pix, cartão e transferência</li>
-            </ul>
+            <div className="contact-cta-card">
+              <h3>Pronta para encomendar?</h3>
+              <p>Clique abaixo e fale diretamente com a gente. Resposta rápida garantida.</p>
+              <a
+                href="https://wa.me/5511999999999?text=Olá%2C+Artelli!+Gostaria+de+fazer+uma+encomenda."
+                target="_blank" rel="noopener"
+                className="btn btn-sand"
+                style={{ width: '100%', justifyContent: 'center', fontSize: '1rem' }}
+              >
+                <MessageCircle size={20} /> Encomendar pelo WhatsApp
+              </a>
+              <p className="contact-cta-note">🌿 Feito à mão com amor, para você.</p>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
+
     </main>
   );
 }

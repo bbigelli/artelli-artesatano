@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { productService } from '../api/products';
@@ -12,97 +12,84 @@ export default function Products() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const selectedCat = searchParams.get('categoria') || '';
+
+  const categorySlug = searchParams.get('category') || '';
+  const selectedCat = categories.find((c) => c.slug === categorySlug);
 
   useEffect(() => {
-    productService.getCategories().then(setCategories);
+    productService.categories().then(setCategories).catch(console.error);
   }, []);
 
   useEffect(() => {
     setLoading(true);
-    const catId = categories.find((c) => c.slug === selectedCat)?.id;
     productService
-      .list({ category_id: catId, search: search || undefined })
+      .list({ category_id: selectedCat?.id, search: search || undefined })
       .then(setProducts)
+      .catch(console.error)
       .finally(() => setLoading(false));
-  }, [selectedCat, search, categories]);
-
-  function setCategory(slug: string) {
-    const params = new URLSearchParams(searchParams);
-    if (slug) params.set('categoria', slug);
-    else params.delete('categoria');
-    setSearchParams(params);
-  }
+  }, [categorySlug, selectedCat?.id, search]);
 
   return (
     <main className="products-page">
-      <div className="container">
-        <div className="products-page__header">
-          <div>
-            <span className="section-label">Catálogo</span>
-            <h1>Nossas peças</h1>
-            <p>{products.length} peça{products.length !== 1 ? 's' : ''} encontrada{products.length !== 1 ? 's' : ''}</p>
-          </div>
+      <div className="products-page__hero">
+        <div className="container">
+          <p className="section__eyebrow">Catálogo</p>
+          <h1 className="products-page__title">Nossas <em>criações</em></h1>
+          <p className="products-page__sub">Peças feitas à mão, com amor e atenção a cada detalhe.</p>
         </div>
+      </div>
 
-        <div className="products-page__layout">
-          {/* Sidebar filters */}
-          <aside className="products-page__sidebar">
-            <div className="filter-section">
-              <h4><SlidersHorizontal size={15} /> Filtros</h4>
-              <div className="form-group">
-                <label className="form-label">Buscar</label>
-                <div className="search-input-wrap">
-                  <Search size={16} className="search-input-icon" />
-                  <input
-                    className="form-input"
-                    style={{ paddingLeft: 36 }}
-                    placeholder="Nome do produto..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Categoria</label>
-                <div className="category-filters">
-                  <button
-                    className={`category-btn ${!selectedCat ? 'active' : ''}`}
-                    onClick={() => setCategory('')}
-                  >
-                    Todas
-                  </button>
-                  {categories.map((c) => (
-                    <button
-                      key={c.id}
-                      className={`category-btn ${selectedCat === c.slug ? 'active' : ''}`}
-                      onClick={() => setCategory(c.slug)}
-                    >
-                      {c.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          {/* Grid */}
-          <div className="products-page__content">
-            {loading ? (
-              <div className="spinner" />
-            ) : products.length === 0 ? (
-              <div className="empty-state">
-                <p>Nenhuma peça encontrada com esses filtros.</p>
-                <button className="btn btn-outline" onClick={() => { setSearch(''); setCategory(''); }}>
-                  Limpar filtros
-                </button>
-              </div>
-            ) : (
-              <div className="products-grid">
-                {products.map((p) => <ProductCard key={p.id} product={p} />)}
-              </div>
-            )}
+      <div className="container products-page__content">
+        {/* Filtros */}
+        <aside className="products-filters">
+          <div className="filter-search">
+            <Search size={16} />
+            <input
+              type="text" placeholder="Buscar peças..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
+          <div className="filter-section">
+            <h4><SlidersHorizontal size={14} /> Categoria</h4>
+            <button
+              className={`filter-btn ${!categorySlug ? 'filter-btn--active' : ''}`}
+              onClick={() => setSearchParams({})}
+            >
+              Todas
+            </button>
+            {categories.map((c) => (
+              <button
+                key={c.id}
+                className={`filter-btn ${categorySlug === c.slug ? 'filter-btn--active' : ''}`}
+                onClick={() => setSearchParams({ category: c.slug })}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        </aside>
+
+        {/* Grid */}
+        <div className="products-results">
+          <p className="products-count">
+            {loading ? 'Carregando...' : `${products.length} peça${products.length !== 1 ? 's' : ''} encontrada${products.length !== 1 ? 's' : ''}`}
+          </p>
+          {loading ? (
+            <div className="products-grid">
+              {Array(6).fill(0).map((_, i) => <div className="skeleton-card" key={i} />)}
+            </div>
+          ) : products.length === 0 ? (
+            <div className="products-empty">
+              <span>🌿</span>
+              <h3>Nenhuma peça encontrada</h3>
+              <p>Tente outro filtro ou busca.</p>
+            </div>
+          ) : (
+            <div className="products-grid">
+              {products.map((p) => <ProductCard key={p.id} product={p} />)}
+            </div>
+          )}
         </div>
       </div>
     </main>
